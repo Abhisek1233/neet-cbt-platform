@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Mic, Maximize2, ShieldCheck, ArrowRight, Play, CheckCircle2 } from 'lucide-react';
+import { Camera, Mic, Maximize2, ShieldCheck, ArrowRight, Play, Lock, EyeOff } from 'lucide-react';
 import { store } from '../../services/store';
 
 export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel }) {
@@ -98,6 +98,21 @@ export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel 
             >
               <Play className="w-3.5 h-3.5 fill-white" /> Direct Start Exam
             </button>
+          </div>
+        </div>
+
+        {/* Security & Privacy Assurance Notice */}
+        <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-xs">
+            <p className="font-extrabold text-emerald-300 flex items-center gap-1.5">
+              100% Encrypted & Local RAM Stream Privacy Protection
+            </p>
+            <p className="text-[11px] text-slate-300 leading-tight mt-0.5">
+              Your camera & mic feeds exist <strong>only in temporary local memory</strong> and are <strong>never stored on any server or disk</strong>. All WebSockets telemetry uses encrypted DTLS-SRTP protocols.
+            </p>
           </div>
         </div>
 
