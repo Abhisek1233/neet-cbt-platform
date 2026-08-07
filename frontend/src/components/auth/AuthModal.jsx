@@ -1,304 +1,187 @@
 import React, { useState } from 'react';
-import { UserCheck, UserPlus, Play, X, KeyRound, Mail, User, GraduationCap, ShieldCheck, Sparkles, BookOpen } from 'lucide-react';
+import { X, ShieldCheck, UserCheck, Lock, Mail, Phone, User, KeyRound, Sparkles } from 'lucide-react';
 import { store } from '../../services/store';
 import { loginUserBackend, registerUserBackend } from '../../services/api';
 import { showToast } from '../ui/Toast';
 
-export default function AuthModal({ isOpen, onClose, currentUser }) {
-  const [activeTab, setActiveTab] = useState('login');
+export default function AuthModal({ isOpen, onClose, currentUser, theme }) {
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const [selectedRole, setSelectedRole] = useState('student'); // 'student' | 'teacher'
   
-  // Clean Login Inputs (No hardcoded pre-filled credentials)
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  
-  // Clean Sign Up Inputs
-  const [signUpName, setSignUpName] = useState('');
-  const [signUpEmail, setSignUpEmail] = useState('');
-  const [signUpPassword, setSignUpPassword] = useState('');
-  const [signUpRole, setSignUpRole] = useState('student');
-  const [targetYear, setTargetYear] = useState('2026');
-
-  // Guest State
-  const [guestName, setGuestName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isDark = theme === 'dark';
 
   if (!isOpen) return null;
 
-  const handleSignInSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    if (!loginEmail.trim() || !loginPassword.trim()) {
-      showToast('Please enter both your email address and password.', 'error');
+    if (!email || !password) {
+      showToast('⚠️ Please enter your registered email and password!', 'error');
       return;
     }
 
     setIsSubmitting(true);
-    try {
-      const resData = await loginUserBackend({ email: loginEmail, password: loginPassword });
-      if (resData && resData.user) {
-        store.setState({ currentUser: resData.user });
-        store.saveToStorage('user', resData.user);
-        showToast(`✅ Welcome back, ${resData.user.name}! Account authenticated.`, 'success');
-        onClose();
-      } else {
-        showToast('❌ Account not found or incorrect password. Please check your credentials or click Sign Up.', 'error', 5000);
-      }
-    } catch (err) {
-      showToast('❌ Login server error. Please try again.', 'error');
-    }
+    showToast('🔐 Authenticating with Secure Database...', 'info', 3000);
+
+    const result = await loginUserBackend({ email, password });
     setIsSubmitting(false);
-  };
 
-  const handleSignUpSubmit = async (e) => {
-    e.preventDefault();
-    if (!signUpName.trim() || !signUpEmail.trim() || !signUpPassword.trim()) {
-      showToast('Please fill out all registration fields.', 'error');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const resData = await registerUserBackend({
-        name: signUpName.trim(),
-        email: signUpEmail.trim(),
-        password: signUpPassword.trim(),
-        role: signUpRole
-      });
-
-      if (resData && resData.user) {
-        store.setState({ currentUser: resData.user });
-        store.saveToStorage('user', resData.user);
-        showToast(`🎉 Account Created! Welcome ${resData.user.name}.`, 'success');
-        onClose();
-      } else {
-        const fallbackUser = {
-          id: `usr_${Date.now()}`,
-          name: signUpName,
-          email: signUpEmail,
-          role: signUpRole,
-          avatar: signUpRole === 'teacher' 
-            ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' 
-            : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
-        };
-        store.setState({ currentUser: fallbackUser });
-        store.saveToStorage('user', fallbackUser);
-        showToast(`🎉 Welcome ${signUpName}! Session initialized.`, 'success');
-        onClose();
-      }
-    } catch (err) {
-      showToast('❌ Registration failed. Please try again.', 'error');
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleQuickPresetLogin = async (name, email, role) => {
-    setLoginEmail(email);
-    setLoginPassword('password123');
-    setIsSubmitting(true);
-    const resData = await loginUserBackend({ email, password: 'password123' });
-    if (resData && resData.user) {
-      store.setState({ currentUser: resData.user });
-      store.saveToStorage('user', resData.user);
+    if (result && result.user) {
+      store.setUserCustomAccount(result.user.name, result.user.email, result.user.role);
+      showToast(`🎉 Welcome back, ${result.user.name}! (${result.user.role.toUpperCase()} Account Signed In)`, 'success');
+      onClose();
     } else {
-      store.setUserCustomAccount(name, email, role);
+      showToast('❌ Account not found or incorrect password. Please check your credentials or Register.', 'error', 5000);
     }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !email || !password) {
+      showToast('⚠️ Please fill out Name, Email, and Password!', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    showToast('⚡ Creating your account in Secure Database...', 'info', 3000);
+
+    const result = await registerUserBackend({
+      name,
+      email,
+      password,
+      role: selectedRole,
+      phone
+    });
     setIsSubmitting(false);
-    showToast(`Logged in as ${name}`, 'success');
-    onClose();
+
+    if (result && result.user) {
+      store.setUserCustomAccount(result.user.name, result.user.email, result.user.role);
+      showToast(`✨ Account Created Successfully! Logged in as ${result.user.name}`, 'success');
+      onClose();
+    } else {
+      showToast('❌ Registration failed. Email ID may already be registered.', 'error', 5000);
+    }
+  };
+
+  const fillQuickPreset = (presetRole, presetEmail, presetPass, presetName) => {
+    setSelectedRole(presetRole);
+    setEmail(presetEmail);
+    setPassword(presetPass);
+    setName(presetName);
+    showToast(`🔑 Loaded ${presetRole.toUpperCase()} demo credentials. Click Sign In!`, 'info');
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-700 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+      <div className={`w-full max-w-md rounded-3xl p-5 sm:p-6 border shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto ${
+        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+      }`}>
         
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Top Header & Tab Switches */}
-        <div className="text-center space-y-1.5 pr-6 sm:pr-0">
-          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] sm:text-xs font-extrabold border border-amber-400/30">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> PostgreSQL Cloud Database Auth
-          </span>
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">
-            Welcome to NEET CBT Portal
-          </h2>
-        </div>
-
-        {/* Auth Sub-Tabs */}
-        <div className="flex items-center justify-center bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1">
-          <button
-            onClick={() => setActiveTab('login')}
-            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'login' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" /> Sign In
-          </button>
-
-          <button
-            onClick={() => setActiveTab('signup')}
-            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'signup' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" /> Sign Up
-          </button>
-
-          <button
-            onClick={() => setActiveTab('guest')}
-            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'guest' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Play className="w-3.5 h-3.5 fill-current" /> Guest
-          </button>
-        </div>
-
-        {/* TAB 1: SIGN IN FORM */}
-        {activeTab === 'login' && (
-          <div className="space-y-4 animate-fadeIn">
-            <form onSubmit={handleSignInSubmit} className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                  <input
-                    type="email"
-                    required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="Enter your registered Gmail ID..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Password</label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                  <input
-                    type="password"
-                    required
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Enter your password..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition-all cursor-pointer mt-2"
-              >
-                {isSubmitting ? 'Authenticating with PostgreSQL...' : 'Sign In to CBT Account'}
-              </button>
-            </form>
-
-            {/* Quick Demo Preset Chips */}
-            <div className="pt-3 border-t border-slate-800 space-y-2">
-              <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Or One-Click Quick Login:</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  onClick={() => handleQuickPresetLogin('Rahul Kumar (Student)', 'rahul.student@neet.edu', 'student')}
-                  className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
-                >
-                  <p className="font-extrabold text-white flex items-center gap-1">
-                    <GraduationCap className="w-3.5 h-3.5 text-cyan-400" /> Rahul Kumar
-                  </p>
-                  <p className="text-[10px] text-slate-400">Student • AIR #420 Target</p>
-                </button>
-
-                <button
-                  onClick={() => handleQuickPresetLogin('Dr. S. K. Roy (HOD Physics)', 'hod.physics@neet.edu', 'teacher')}
-                  className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
-                >
-                  <p className="font-extrabold text-white flex items-center gap-1">
-                    <BookOpen className="w-3.5 h-3.5 text-purple-400" /> Dr. S. K. Roy
-                  </p>
-                  <p className="text-[10px] text-slate-400">Faculty HOD • Teacher Portal</p>
-                </button>
-              </div>
-            </div>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b pb-3 border-slate-800">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-amber-400" />
+            <h3 className="text-sm sm:text-base font-extrabold">NEET CBT Secure Portal Authentication</h3>
           </div>
-        )}
+          <button onClick={onClose} className="p-1 rounded-xl text-slate-400 hover:text-slate-200 cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-        {/* TAB 2: SIGN UP / REGISTER FORM */}
-        {activeTab === 'signup' && (
-          <form onSubmit={handleSignUpSubmit} className="space-y-3 animate-fadeIn">
-            <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Full Name</label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  required
-                  value={signUpName}
-                  onChange={(e) => setSignUpName(e.target.value)}
-                  placeholder="e.g. Priya Sharma"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-            </div>
+        {/* Tab Switcher: Login vs Register */}
+        <div className={`grid grid-cols-2 gap-1 p-1 rounded-xl border ${
+          isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+        }`}>
+          <button
+            onClick={() => setAuthMode('login')}
+            className={`py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+              authMode === 'login'
+                ? 'bg-amber-400 text-slate-950 shadow'
+                : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900')
+            }`}
+          >
+            Sign In (Login)
+          </button>
+          <button
+            onClick={() => setAuthMode('register')}
+            className={`py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+              authMode === 'register'
+                ? 'bg-amber-400 text-slate-950 shadow'
+                : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900')
+            }`}
+          >
+            Create New Account
+          </button>
+        </div>
 
+        {/* Role Selection Chips */}
+        <div>
+          <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+            Select Account Role
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedRole('student')}
+              className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedRole === 'student'
+                  ? 'bg-blue-600/20 border-blue-500 text-blue-400'
+                  : (isDark ? 'bg-slate-950/60 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600')
+              }`}
+            >
+              <User className="w-4 h-4" /> Student Aspirant
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedRole('teacher')}
+              className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedRole === 'teacher'
+                  ? 'bg-purple-600/20 border-purple-500 text-purple-300'
+                  : (isDark ? 'bg-slate-950/60 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600')
+              }`}
+            >
+              <UserCheck className="w-4 h-4" /> Faculty / Teacher
+            </button>
+          </div>
+        </div>
+
+        {authMode === 'login' ? (
+          <form onSubmit={handleLoginSubmit} className="space-y-3 pt-1">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Email Address (Gmail)</label>
+              <label className="text-xs font-bold block mb-1">Gmail / Email Address</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
                   type="email"
                   required
-                  value={signUpEmail}
-                  onChange={(e) => setSignUpEmail(e.target.value)}
-                  placeholder="priya.sharma@gmail.com"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                  placeholder={selectedRole === 'teacher' ? 'hod.physics@neet.edu' : 'rahul.student@neet.edu'}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Account Role</label>
-                <select
-                  value={signUpRole}
-                  onChange={(e) => setSignUpRole(e.target.value)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold focus:outline-none focus:border-amber-400"
-                >
-                  <option value="student">NEET Student / Aspirant</option>
-                  <option value="teacher">Teacher / Faculty Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Target NEET Year</label>
-                <select
-                  value={targetYear}
-                  onChange={(e) => setTargetYear(e.target.value)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold focus:outline-none focus:border-amber-400"
-                >
-                  <option value="2026">NEET UG 2026</option>
-                  <option value="2027">NEET UG 2027</option>
-                </select>
-              </div>
-            </div>
-
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Create Password</label>
+              <label className="text-xs font-bold block mb-1">Password</label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
                   type="password"
                   required
-                  value={signUpPassword}
-                  onChange={(e) => setSignUpPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                  placeholder="Enter secret password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 />
               </div>
             </div>
@@ -308,43 +191,86 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
               disabled={isSubmitting}
               className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition-all cursor-pointer mt-2"
             >
-              {isSubmitting ? 'Creating PostgreSQL Account...' : 'Create Account & Enter Platform'}
+              {isSubmitting ? 'Authenticating with Database...' : 'Sign In to CBT Account'}
             </button>
           </form>
-        )}
-
-        {/* TAB 3: GUEST MODE */}
-        {activeTab === 'guest' && (
-          <div className="space-y-4 animate-fadeIn">
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-              <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-400" /> Instant Temporary Guest Practice Session
-              </p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Practice full CBT mock tests instantly without creating an account.
-              </p>
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Enter Your Aspirant Name (Optional)</label>
+        ) : (
+          <form onSubmit={handleRegisterSubmit} className="space-y-3 pt-1">
+            <div>
+              <label className="text-xs font-bold block mb-1">Full Name</label>
+              <div className="relative">
+                <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
                   type="text"
-                  placeholder="e.g. Guest Aspirant"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-bold"
+                  required
+                  placeholder={selectedRole === 'teacher' ? 'Dr. S. K. Roy (HOD Physics)' : 'Rahul Kumar'}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold block mb-1">Gmail / Email Address</label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <input
+                  type="email"
+                  required
+                  placeholder="name@neet.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold block mb-1">Phone Number (For Squad Invites)</label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <input
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold block mb-1">Password</label>
+              <div className="relative">
+                <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <input
+                  type="password"
+                  required
+                  placeholder="Create password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 />
               </div>
             </div>
 
             <button
-              onClick={() => {
-                store.setUserRole('student', true, guestName || 'Guest Aspirant');
-                onClose();
-              }}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-lg transition-all cursor-pointer"
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition-all cursor-pointer mt-2"
             >
-              Start Instant Guest CBT Session
+              {isSubmitting ? 'Creating Account in Database...' : 'Create Account & Enter Platform'}
             </button>
-          </div>
+          </form>
         )}
 
       </div>

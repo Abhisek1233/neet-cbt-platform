@@ -72,7 +72,7 @@ export default function QuestionBank({ questions, theme }) {
     });
 
     setShowAddModal(false);
-    showToast('✅ Custom Question saved to PostgreSQL Database!', 'success');
+    showToast('✅ Custom Question saved to Database!', 'success');
   };
 
   const handleExecuteAiPrompt = async (e) => {
@@ -88,22 +88,22 @@ export default function QuestionBank({ questions, theme }) {
     setIsGeneratingAi(false);
     setShowAiPromptModal(false);
     setAiCustomPrompt('');
-    showToast(`✨ Generated ${aiQuestions.length} Questions via Gemini AI Prompt & saved to DB!`, 'success');
+    showToast(`✨ Generated ${aiQuestions.length} Questions via Gemini AI Prompt & saved to Database!`, 'success');
   };
 
   const handleSyncRealDbQuestions = async () => {
-    showToast('🔄 Syncing fresh questions directly from Neon Cloud PostgreSQL...', 'info', 3000);
+    showToast('🔄 Syncing fresh questions directly from Live Database...', 'info', 3000);
     const remote = await fetchQuestionsFromBackend();
     if (remote && remote.length >= 0) {
       localStorage.setItem('neet_cbt_questions', JSON.stringify(remote));
       store.setState({ questions: remote });
-      showToast(`✅ Synced ${remote.length} live database questions from PostgreSQL!`, 'success');
+      showToast(`✅ Synced ${remote.length} live database questions!`, 'success');
     }
   };
 
   const handleDeleteSingleQuestion = (id) => {
     store.deleteQuestion(id);
-    showToast('🗑️ Question deleted from PostgreSQL database.', 'info');
+    showToast('🗑️ Question deleted from Database.', 'info');
   };
 
   const handleClearAllQuestions = () => {
@@ -167,7 +167,7 @@ export default function QuestionBank({ questions, theme }) {
               onClick={handleSyncRealDbQuestions}
               title="Sync Real Live Database Questions"
               className={`p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-                isDark ? 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-700 hover:text-slate-900'
+                isDark ? 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white' : 'bg-white border-slate-300 text-slate-700 hover:text-slate-900'
               }`}
             >
               <RefreshCw className="w-4 h-4" />
@@ -227,7 +227,7 @@ export default function QuestionBank({ questions, theme }) {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleSyncRealDbQuestions}
-                className="text-[11px] font-bold text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3" /> Refresh Database View
               </button>
@@ -239,9 +239,9 @@ export default function QuestionBank({ questions, theme }) {
               isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-300 text-slate-600'
             }`}>
               <BookOpen className="w-10 h-10 mx-auto text-slate-500" />
-              <h3 className="text-base font-extrabold">Question Bank is Clean & Empty</h3>
+              <h3 className={`text-base font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>Question Bank is Clean & Empty</h3>
               <p className="text-xs max-w-sm mx-auto">
-                No questions found in PostgreSQL. Click "AI Custom Prompt" or "Add Question" above to generate fresh questions into your live database!
+                No questions found in Database. Click "AI Custom Prompt" or "Add Question" above to generate fresh questions into your live database!
               </p>
             </div>
           ) : (
@@ -317,36 +317,42 @@ export default function QuestionBank({ questions, theme }) {
       {/* AI Prompt Generator Modal */}
       {showAiPromptModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
-          <form onSubmit={handleExecuteAiPrompt} className="w-full max-w-lg bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <form onSubmit={handleExecuteAiPrompt} className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl space-y-4 ${
+            isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+          }`}>
+            <div className="flex items-center justify-between border-b pb-3 border-slate-800">
               <div className="flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-indigo-400" />
+                <Cpu className="w-5 h-5 text-indigo-500" />
                 <h3 className="text-base font-extrabold">Generate Questions with AI Prompt</h3>
               </div>
-              <button type="button" onClick={() => setShowAiPromptModal(false)} className="p-1 text-slate-400 hover:text-white cursor-pointer">
+              <button type="button" onClick={() => setShowAiPromptModal(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Write AI Instructions / Prompt</label>
+              <label className="text-xs font-bold block mb-1">Write AI Instructions / Prompt</label>
               <textarea
                 required
                 rows={4}
                 placeholder='e.g. "Create 3 high-yield Assertion-Reason questions on Thermodynamics with multi-statement options for NEET 2026"'
                 value={aiCustomPrompt}
                 onChange={(e) => setAiCustomPrompt(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400"
+                className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-indigo-500 ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'
+                }`}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Subject</label>
+                <label className="text-xs font-bold block mb-1">Subject</label>
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold"
+                  className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 >
                   <option value="Physics">Physics</option>
                   <option value="Chemistry">Chemistry</option>
@@ -356,20 +362,22 @@ export default function QuestionBank({ questions, theme }) {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Questions Count</label>
+                <label className="text-xs font-bold block mb-1">Questions Count</label>
                 <input
                   type="number"
                   min="1"
                   max="10"
                   value={promptQuestionCount}
                   onChange={(e) => setPromptQuestionCount(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono font-bold text-white"
+                  className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 />
               </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
-              <button type="button" onClick={() => setShowAiPromptModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white cursor-pointer">
+              <button type="button" onClick={() => setShowAiPromptModal(false)} className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold cursor-pointer">
                 Cancel
               </button>
               <button
@@ -388,21 +396,25 @@ export default function QuestionBank({ questions, theme }) {
       {/* Manual Add Question Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
-          <form onSubmit={handleCreateQuestion} className="w-full max-w-2xl bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-white">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-white">Author / Paste New Question</h3>
-              <button type="button" onClick={() => setShowAddModal(false)} className="p-1 rounded-xl text-slate-400 hover:text-white cursor-pointer">
+          <form onSubmit={handleCreateQuestion} className={`w-full max-w-2xl p-6 rounded-3xl border shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto ${
+            isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+          }`}>
+            <div className="flex items-center justify-between border-b pb-3 border-slate-800">
+              <h3 className="text-base font-extrabold">Author / Paste New Question</h3>
+              <button type="button" onClick={() => setShowAddModal(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Subject</label>
+                <label className="text-xs font-bold block mb-1">Subject</label>
                 <select
                   value={newQ.subject}
                   onChange={(e) => setNewQ({ ...newQ, subject: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold"
+                  className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 >
                   <option value="Physics">Physics</option>
                   <option value="Chemistry">Chemistry</option>
@@ -412,23 +424,27 @@ export default function QuestionBank({ questions, theme }) {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Chapter Name</label>
+                <label className="text-xs font-bold block mb-1">Chapter Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Ray Optics, Mendelian Genetics"
                   value={newQ.chapter}
                   onChange={(e) => setNewQ({ ...newQ, chapter: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"
+                  className={`w-full p-2.5 rounded-xl border text-xs ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Difficulty Level</label>
+                <label className="text-xs font-bold block mb-1">Difficulty Level</label>
                 <select
                   value={newQ.difficulty}
                   onChange={(e) => setNewQ({ ...newQ, difficulty: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold"
+                  className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                    isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                  }`}
                 >
                   <option value="Easy">Easy</option>
                   <option value="Medium">Medium</option>
@@ -438,42 +454,46 @@ export default function QuestionBank({ questions, theme }) {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Question Statement</label>
+              <label className="text-xs font-bold block mb-1">Question Statement</label>
               <textarea
                 required
                 rows={3}
                 placeholder="Paste or type complete question statement..."
                 value={newQ.text}
                 onChange={(e) => setNewQ({ ...newQ, text: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-amber-400 ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'
+                }`}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Option A</label>
-                <input type="text" required placeholder="Option A text" value={newQ.opt0} onChange={(e) => setNewQ({ ...newQ, opt0: e.target.value })} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <label className="text-xs font-bold block mb-1">Option A</label>
+                <input type="text" required placeholder="Option A text" value={newQ.opt0} onChange={(e) => setNewQ({ ...newQ, opt0: e.target.value })} className={`w-full p-2.5 rounded-xl border text-xs ${isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`} />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Option B</label>
-                <input type="text" required placeholder="Option B text" value={newQ.opt1} onChange={(e) => setNewQ({ ...newQ, opt1: e.target.value })} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <label className="text-xs font-bold block mb-1">Option B</label>
+                <input type="text" required placeholder="Option B text" value={newQ.opt1} onChange={(e) => setNewQ({ ...newQ, opt1: e.target.value })} className={`w-full p-2.5 rounded-xl border text-xs ${isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`} />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Option C</label>
-                <input type="text" required placeholder="Option C text" value={newQ.opt2} onChange={(e) => setNewQ({ ...newQ, opt2: e.target.value })} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <label className="text-xs font-bold block mb-1">Option C</label>
+                <input type="text" required placeholder="Option C text" value={newQ.opt2} onChange={(e) => setNewQ({ ...newQ, opt2: e.target.value })} className={`w-full p-2.5 rounded-xl border text-xs ${isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`} />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Option D</label>
-                <input type="text" required placeholder="Option D text" value={newQ.opt3} onChange={(e) => setNewQ({ ...newQ, opt3: e.target.value })} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <label className="text-xs font-bold block mb-1">Option D</label>
+                <input type="text" required placeholder="Option D text" value={newQ.opt3} onChange={(e) => setNewQ({ ...newQ, opt3: e.target.value })} className={`w-full p-2.5 rounded-xl border text-xs ${isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`} />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Correct Option Answer</label>
+              <label className="text-xs font-bold block mb-1">Correct Option Answer</label>
               <select
                 value={newQ.correctOption}
                 onChange={(e) => setNewQ({ ...newQ, correctOption: e.target.value })}
-                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold"
+                className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                }`}
               >
                 <option value={0}>Option A</option>
                 <option value={1}>Option B</option>
@@ -483,18 +503,20 @@ export default function QuestionBank({ questions, theme }) {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Solution & Explanation</label>
+              <label className="text-xs font-bold block mb-1">Solution & Explanation</label>
               <textarea
                 rows={2}
                 placeholder="Detailed step-by-step solution..."
                 value={newQ.explanation}
                 onChange={(e) => setNewQ({ ...newQ, explanation: e.target.value })}
-                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                className={`w-full p-2.5 rounded-xl border text-xs focus:outline-none focus:border-amber-400 ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'
+                }`}
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
-              <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white cursor-pointer">
+              <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold cursor-pointer">
                 Cancel
               </button>
               <button type="submit" className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-md cursor-pointer">
