@@ -10,7 +10,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-const { initPgDatabase } = require('./src/config/db');
+const { pool, initPgDatabase } = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 const questionController = require('./src/controllers/questionController');
 
@@ -72,11 +72,44 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString(),
     endpoints: {
       health: '/api/health',
+      dbOverview: '/api/admin/db-overview',
       exams: '/api/exams',
       questions: '/api/questions',
       generateAiQuestion: '/api/ai/generate-question'
     }
   });
+});
+
+// Admin DB Overview Route: View all tables in PostgreSQL
+app.get('/api/admin/db-overview', async (req, res) => {
+  try {
+    const usersRes = await pool.query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 50');
+    const questionsRes = await pool.query('SELECT id, subject, chapter, difficulty, text, created_at FROM questions ORDER BY created_at DESC LIMIT 50');
+    const examsRes = await pool.query('SELECT id, title, category, code, duration_min, created_by, allowed_student_emails, created_at FROM exams ORDER BY created_at DESC LIMIT 50');
+    const attemptsRes = await pool.query('SELECT id, exam_id, student_name, student_email, score, total_possible_score, accuracy, submitted_at FROM attempts ORDER BY submitted_at DESC LIMIT 50');
+    const teamsRes = await pool.query('SELECT id, name, description, member_count, creator, created_at FROM teams ORDER BY created_at DESC LIMIT 50');
+
+    res.json({
+      database: 'Neon Cloud PostgreSQL',
+      timestamp: new Date().toISOString(),
+      counts: {
+        users: usersRes.rowCount,
+        questions: questionsRes.rowCount,
+        exams: examsRes.rowCount,
+        attempts: attemptsRes.rowCount,
+        teams: teamsRes.rowCount
+      },
+      tables: {
+        users: usersRes.rows,
+        questions: questionsRes.rows,
+        exams: examsRes.rows,
+        attempts: attemptsRes.rows,
+        teams: teamsRes.rows
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Direct AI Route Handler (Guarantees POST /api/ai/generate-question)
