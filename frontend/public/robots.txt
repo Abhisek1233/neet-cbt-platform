@@ -1,0 +1,6 @@
+# Allow all search engine crawlers (Googlebot, Bingbot, Yandex, DuckDuckBot)
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://neet-cbt-platform.vercel.app/sitemap.xml

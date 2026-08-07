@@ -58,6 +58,21 @@ export default function App() {
     handleTabChange('exams', true);
   };
 
+  // Dynamic Document Title for SEO Keyword Optimization
+  useEffect(() => {
+    const titleMap = {
+      exams: 'NTA NEET UG 2026 Mock Test Suite & Gemini AI Generator | NEET CBT',
+      predictor: 'NEET Medical College & Closing Rank Predictor 2026 | AIIMS, MAMC Cutoffs',
+      cutoffs: 'MCC All India Quota & State 85% Cutoff Explorer | NEET CBT',
+      social: 'NEET Study Squads, Doubt Forum & Revision Notes | NEET CBT Community',
+      'teacher-qbank': 'Faculty Question Bank & Exam Suite | NEET CBT Admin',
+      'teacher-proctoring': 'Live AI Proctoring Telemetry Dashboard | NEET CBT Admin'
+    };
+
+    const newTitle = titleMap[activeTab] || 'NEET CBT 2026 — Official NTA Pattern Mock Test & AI Portal';
+    document.title = newTitle;
+  }, [activeTab]);
+
   // Listen for Browser Back & Forward button clicks (popstate)
   useEffect(() => {
     const handlePopState = () => {
