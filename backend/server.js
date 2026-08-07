@@ -46,6 +46,21 @@ app.use('/uploads', express.static(uploadsDir));
 // Initialize Database Tables
 initPgDatabase();
 
+// Root Welcome Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ONLINE',
+    message: '🚀 NTA NEET UG CBT Backend API & Google Gemini AI Engine is Live!',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/health',
+      exams: '/api/exams',
+      questions: '/api/questions',
+      generateAiQuestion: '/api/ai/generate-question'
+    }
+  });
+});
+
 // Direct AI Route Handler (Guarantees POST /api/ai/generate-question)
 app.post('/api/ai/generate-question', questionController.generateAiQuestion);
 

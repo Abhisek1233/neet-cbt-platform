@@ -1,12 +1,19 @@
 import { io } from 'socket.io-client';
 
-const API_BASE_URL = 'http://localhost:4000/api';
-export const socket = io('http://localhost:4000', { autoConnect: false });
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:4000/api'
+  : 'https://neet-cbt-platform-9qh1.onrender.com/api';
+
+const SOCKET_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:4000'
+  : 'https://neet-cbt-platform-9qh1.onrender.com';
+
+export const socket = io(SOCKET_URL, { autoConnect: false });
 
 export async function fetchExamsFromBackend(category = 'All') {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
+    const timeout = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(`${API_BASE_URL}/exams?category=${encodeURIComponent(category)}`, { signal: controller.signal });
     clearTimeout(timeout);
     if (!res.ok) throw new Error('API Error');
@@ -20,7 +27,7 @@ export async function fetchExamsFromBackend(category = 'All') {
 export async function fetchQuestionsFromBackend() {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
+    const timeout = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(`${API_BASE_URL}/questions`, { signal: controller.signal });
     clearTimeout(timeout);
     if (!res.ok) throw new Error('API Error');
@@ -34,7 +41,7 @@ export async function fetchQuestionsFromBackend() {
 export async function generateAiQuestion(subject, chapter, type) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2500);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(`${API_BASE_URL}/ai/generate-question`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
