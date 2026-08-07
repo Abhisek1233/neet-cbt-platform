@@ -243,7 +243,15 @@ export default function StudyTeams({ teams, currentUser, theme }) {
             </div>
 
             <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
-              <button type="button" onClick={() => setShowCreateGroupModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white cursor-pointer">
+              <button
+                type="button"
+                onClick={() => setShowCreateGroupModal(false)}
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                    : 'bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300'
+                }`}
+              >
                 Cancel
               </button>
               <button type="submit" className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-md cursor-pointer">

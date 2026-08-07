@@ -102,10 +102,18 @@ export default function DoubtForum({ doubts, currentUser }) {
             />
 
             <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={() => setShowAskModal(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300">
+              <button
+                type="button"
+                onClick={() => setShowAskModal(false)}
+                className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                    : 'bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300'
+                }`}
+              >
                 Cancel
               </button>
-              <button type="submit" className="px-4 py-2 rounded-lg bg-cyan-600 text-white text-xs font-bold">
+              <button type="submit" className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold cursor-pointer">
                 Post Doubt
               </button>
             </div>
