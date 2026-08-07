@@ -157,20 +157,20 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
         isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
       }`}>
         <div className="space-y-1 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-400">
-            <MessageSquarePlus className="w-4 h-4" /> Found an issue or want a new feature?
+          <div className={`inline-flex items-center gap-1.5 text-sm font-extrabold ${isDark ? 'text-amber-300' : 'text-amber-600'}`}>
+            <MessageSquarePlus className={`w-4 h-4 ${isDark ? 'text-amber-300' : 'text-amber-600'}`} /> Found an issue or want a new feature?
           </div>
-          <p className="text-xs text-slate-400 font-medium">
+          <p className={`text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
             Contact us directly or submit in-app feedback. Emailing guarantees faster responses!
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <a
-            href="mailto:abhishekkumar.support@gmail.com?subject=NEET%20CBT%20Platform%20Issue%20or%20Feature%20Request"
+            href="mailto:a37317020@gmail.com?subject=NEET%20CBT%20Platform%20Issue%20or%20Feature%20Request"
             className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer transition-all"
           >
-            <Mail className="w-3.5 h-3.5" /> Email Creator (Recommended)
+            <Mail className="w-3.5 h-3.5" /> Email Creator (a37317020@gmail.com)
           </a>
           <button
             onClick={() => setIsFeedbackOpen(true)}
@@ -178,7 +178,7 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
               isDark ? 'bg-slate-950 border-slate-700 text-slate-200 hover:text-white' : 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
             }`}
           >
-            <MessageSquarePlus className="w-3.5 h-3.5 text-cyan-400" /> Post In-App Feedback
+            <MessageSquarePlus className="w-3.5 h-3.5 text-cyan-500" /> Post In-App Feedback
           </button>
         </div>
       </div>

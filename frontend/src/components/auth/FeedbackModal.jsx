@@ -56,32 +56,36 @@ export default function FeedbackModal({ isOpen, onClose, currentUser, onOpenAuth
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-3 border-slate-800">
           <div className="flex items-center gap-2">
-            <MessageSquarePlus className="w-5 h-5 text-amber-400" />
-            <h3 className="text-sm sm:text-base font-extrabold">Report Issue, Suggest Feature or Improvement</h3>
+            <MessageSquarePlus className={`w-5 h-5 ${isDark ? 'text-amber-300' : 'text-amber-600'}`} />
+            <h3 className={`text-sm sm:text-base font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Report Issue, Suggest Feature or Improvement
+            </h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-xl text-slate-400 hover:text-slate-200 cursor-pointer">
+          <button onClick={onClose} className="p-1 rounded-xl text-slate-400 hover:text-slate-600 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Priority Option 1: Direct Email (Higher Chance) */}
-        <div className="p-4 rounded-2xl bg-amber-400/10 border border-amber-400/40 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-amber-400 flex items-center gap-1.5">
-              <Mail className="w-4 h-4 text-amber-400" /> Email Creator Directly
+        <div className={`p-4 rounded-2xl border space-y-2.5 ${
+          isDark ? 'bg-amber-400/10 border-amber-400/40 text-slate-200' : 'bg-amber-50 border-amber-300 text-slate-900'
+        }`}>
+          <div className="flex items-center justify-between flex-wrap gap-1">
+            <span className={`text-xs font-extrabold flex items-center gap-1.5 ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
+              <Mail className="w-4 h-4" /> Email Creator Directly
             </span>
             <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-extrabold">
               ⭐ Recommended (Fast Response)
             </span>
           </div>
-          <p className="text-xs text-slate-300">
+          <p className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
             For urgent issues or feature requests, sending an email directly guarantees highest priority review:
           </p>
           <a
-            href="mailto:abhishekkumar.support@gmail.com?subject=NEET%20CBT%20Platform%20Feedback"
+            href="mailto:a37317020@gmail.com?subject=NEET%20CBT%20Platform%20Feedback"
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold shadow cursor-pointer transition-all"
           >
-            <Mail className="w-3.5 h-3.5" /> Email: abhishekkumar.support@gmail.com
+            <Mail className="w-3.5 h-3.5" /> Email: a37317020@gmail.com
           </a>
         </div>
 
@@ -123,10 +127,12 @@ export default function FeedbackModal({ isOpen, onClose, currentUser, onOpenAuth
           </div>
 
           {/* Notice Box */}
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className={`p-3 rounded-xl border text-[11px] flex items-start gap-2 ${
+            isDark ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-300 text-slate-700'
+          }`}>
+            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <p>
-              <strong className="text-slate-200">Notice:</strong> In-app database submissions are reviewed periodically (there is a less chance to see in-app posts immediately compared to emailing directly).
+              <strong className={isDark ? 'text-slate-200' : 'text-slate-900'}>Notice:</strong> In-app database submissions are reviewed periodically (there is a less chance to see in-app posts immediately compared to emailing directly).
             </p>
           </div>
 
