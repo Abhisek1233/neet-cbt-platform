@@ -170,7 +170,7 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
             href="mailto:a37317020@gmail.com?subject=NEET%20CBT%20Platform%20Issue%20or%20Feature%20Request"
             className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer transition-all"
           >
-            <Mail className="w-3.5 h-3.5" /> Email Creator (a37317020@gmail.com)
+            <Mail className="w-3.5 h-3.5" /> Email Creator
           </a>
           <button
             onClick={() => setIsFeedbackOpen(true)}
