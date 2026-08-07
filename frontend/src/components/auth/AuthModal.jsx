@@ -3,7 +3,7 @@ import { UserCheck, UserPlus, Play, X, KeyRound, Mail, User, GraduationCap, Shie
 import { store } from '../../services/store';
 
 export default function AuthModal({ isOpen, onClose, currentUser }) {
-  const [activeTab, setActiveTab] = useState('login'); // 'login', 'signup', 'guest'
+  const [activeTab, setActiveTab] = useState('login');
   
   // Login State
   const [loginEmail, setLoginEmail] = useState('rahul.student@neet.edu');
@@ -43,8 +43,8 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-xl bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+      <div className="relative w-full max-w-lg bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-700 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
@@ -55,20 +55,20 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
         </button>
 
         {/* Top Header & Tab Switches */}
-        <div className="text-center space-y-2">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-extrabold border border-amber-400/30">
-            <ShieldCheck className="w-4 h-4 text-amber-400" /> NEET CBT Portal Authentication
+        <div className="text-center space-y-1.5 pr-6 sm:pr-0">
+          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] sm:text-xs font-extrabold border border-amber-400/30">
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> NEET CBT Authentication
           </span>
-          <h2 className="text-2xl font-display font-extrabold text-white">
-            Welcome to NEET CBT Platform
+          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">
+            Welcome to NEET CBT
           </h2>
         </div>
 
         {/* Auth Sub-Tabs */}
-        <div className="flex items-center justify-center bg-slate-950 p-1.5 rounded-2xl border border-slate-800 gap-1">
+        <div className="flex items-center justify-center bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1">
           <button
             onClick={() => setActiveTab('login')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               activeTab === 'login' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -77,20 +77,20 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
           <button
             onClick={() => setActiveTab('signup')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               activeTab === 'signup' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5" /> Create Account
+            <UserPlus className="w-3.5 h-3.5" /> Sign Up
           </button>
 
           <button
             onClick={() => setActiveTab('guest')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               activeTab === 'guest' ? 'bg-amber-400 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Play className="w-3.5 h-3.5 fill-current" /> Instant Guest
+            <Play className="w-3.5 h-3.5 fill-current" /> Guest
           </button>
         </div>
 
@@ -138,11 +138,11 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
             {/* Quick Demo Preset Chips */}
             <div className="pt-3 border-t border-slate-800 space-y-2">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Or One-Click Quick Login:</p>
-              <div className="grid grid-cols-2 gap-2">
+              <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Or One-Click Quick Login:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   onClick={() => handleQuickPresetLogin('Rahul Kumar (Student)', 'rahul.student@neet.edu', 'student')}
-                  className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
+                  className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
                 >
                   <p className="font-extrabold text-white flex items-center gap-1">
                     <GraduationCap className="w-3.5 h-3.5 text-cyan-400" /> Rahul Kumar
@@ -152,7 +152,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
                 <button
                   onClick={() => handleQuickPresetLogin('Dr. S. K. Roy (HOD Physics)', 'hod.physics@neet.edu', 'teacher')}
-                  className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
+                  className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left text-xs transition-all cursor-pointer"
                 >
                   <p className="font-extrabold text-white flex items-center gap-1">
                     <BookOpen className="w-3.5 h-3.5 text-purple-400" /> Dr. S. K. Roy
@@ -197,7 +197,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">Account Role</label>
                 <select

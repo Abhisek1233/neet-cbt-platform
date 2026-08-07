@@ -140,34 +140,34 @@ export default function App() {
           theme={storeState.theme}
         />
 
-        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 pb-20 md:pb-8">
           
           {!currentUser ? (
             <LandingPage onOpenAuth={() => setIsAuthOpen(true)} theme={storeState.theme} />
           ) : (
             <>
               {activeTab === 'exams' && (
-                <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-5 animate-fadeIn">
                   
                   {/* Top NTA Pattern Banner */}
-                  <div className={`cbt-panel p-6 sm:p-8 border shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 ${
+                  <div className={`cbt-panel p-5 sm:p-8 rounded-3xl border shadow-sm relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 ${
                     isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
                   }`}>
                     <div className="max-w-2xl">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-slate-900 text-amber-300 text-xs font-extrabold mb-3">
-                        <ShieldCheck className="w-4 h-4 text-amber-400" /> NTA-PATTERN 200-QUESTION FORMAT & DYNAMIC GEMINI AI GENERATION
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 text-amber-300 text-[10px] sm:text-xs font-extrabold mb-2.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" /> NTA-PATTERN 200Q MOCK FORMAT & DYNAMIC GEMINI AI
                       </span>
-                      <h1 className={`text-2xl sm:text-3xl font-display font-extrabold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                      <h1 className={`text-xl sm:text-3xl font-display font-extrabold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         National Eligibility cum Entrance Test (NEET UG) Mock CBT Portal
                       </h1>
-                      <p className={`text-xs sm:text-sm mt-2 leading-relaxed font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                      <p className={`text-xs sm:text-sm mt-1.5 leading-relaxed font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                         Practice on existing tests or generate unlimited fresh AI mock papers for Subject-Wise, Topic-Wise, Full-Length, and AI High-Yield series!
                       </p>
                     </div>
 
                     <button
                       onClick={() => setIsAiModalOpen(true)}
-                      className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                       <Sparkles className="w-4 h-4 text-amber-300" />
@@ -175,13 +175,13 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Exam Categories Navigation Sub-Tabs */}
+                  {/* Exam Categories Sub-Tabs (Scrollable on phones) */}
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-slate-300 shadow-sm overflow-x-auto">
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-300 shadow-sm overflow-x-auto max-w-full">
                         <button
                           onClick={() => setExamCategory('All')}
-                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
                             examCategory === 'All' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
@@ -189,7 +189,7 @@ export default function App() {
                         </button>
                         <button
                           onClick={() => setExamCategory('Full-Length')}
-                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
                             examCategory === 'Full-Length' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
@@ -197,35 +197,35 @@ export default function App() {
                         </button>
                         <button
                           onClick={() => setExamCategory('Subject-Wise')}
-                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
                             examCategory === 'Subject-Wise' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
-                          Subject-Wise Mocks
+                          Subject Mocks
                         </button>
                         <button
                           onClick={() => setExamCategory('Topic-Wise')}
-                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
                             examCategory === 'Topic-Wise' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
-                          Topic Speed Tests
+                          Topic Tests
                         </button>
                         <button
                           onClick={() => setExamCategory('AI-Predicted')}
-                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
                             examCategory === 'AI-Predicted' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
-                          AI High-Yield Series
+                          AI High-Yield
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between">
                         <span className="text-xs font-mono font-bold text-slate-600">{filteredExams.length} Tests Ready</span>
                         <button
                           onClick={() => setIsAiModalOpen(true)}
-                          className="px-3 py-1.5 rounded bg-indigo-600 text-white font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                           <span>Generate {examCategory === 'All' ? 'Custom' : examCategory} Test</span>
@@ -234,25 +234,25 @@ export default function App() {
                     </div>
 
                     {/* Exams Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       {filteredExams.map((exam) => (
-                        <div key={exam.id} className={`cbt-panel p-6 border flex flex-col justify-between hover:shadow-md transition-all space-y-4 ${
+                        <div key={exam.id} className={`cbt-panel p-5 rounded-3xl border flex flex-col justify-between hover:shadow-md transition-all space-y-4 ${
                           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
                         }`}>
                           <div>
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="px-2.5 py-0.5 rounded bg-slate-900 text-amber-300 font-mono text-[11px] font-extrabold">
+                            <div className="flex items-center justify-between mb-2.5">
+                              <span className="px-2.5 py-0.5 rounded-lg bg-slate-900 text-amber-300 font-mono text-[11px] font-extrabold">
                                 {exam.code}
                               </span>
-                              <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold border border-purple-300">
+                              <span className="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 text-[10px] font-bold border border-purple-300">
                                 {exam.proctoringLevel}
                               </span>
                             </div>
 
-                            <h3 className={`text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.title}</h3>
+                            <h3 className={`text-sm sm:text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.title}</h3>
                             <p className="text-xs text-slate-500 mt-1">Created by {exam.createdBy}</p>
 
-                            <div className={`grid grid-cols-3 gap-2 mt-4 p-3 rounded-lg border text-center text-xs font-mono ${
+                            <div className={`grid grid-cols-3 gap-2 mt-3 p-3 rounded-2xl border text-center text-xs font-mono ${
                               isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
                             }`}>
                               <div>
@@ -260,7 +260,7 @@ export default function App() {
                                 <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.durationMin}m</p>
                               </div>
                               <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Total Marks</p>
+                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Marks</p>
                                 <p className="font-bold text-blue-700">{exam.totalMarks}</p>
                               </div>
                               <div>
@@ -273,7 +273,7 @@ export default function App() {
                           <button
                             onClick={() => handleStartExamFlow(exam)}
                             disabled={isStartingExamId === exam.id}
-                            className="w-full py-3 rounded bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-xs shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                            className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-xs shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
                           >
                             {isStartingExamId === exam.id ? (
                               <span className="flex items-center gap-1.5 animate-pulse">
@@ -302,49 +302,49 @@ export default function App() {
               )}
 
               {activeTab === 'social' && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className={`flex items-center gap-2 p-1.5 rounded-lg border w-fit shadow-sm ${
+                <div className="space-y-5 animate-fadeIn">
+                  <div className={`flex items-center gap-1.5 p-1 rounded-xl border w-full sm:w-auto overflow-x-auto shadow-sm ${
                     isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
                   }`}>
                     <button
                       onClick={() => setSocialSubTab('leaderboard')}
-                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                         socialSubTab === 'leaderboard' 
                           ? 'bg-slate-950 text-amber-300' 
                           : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
                       }`}
                     >
-                      <Sparkles className="w-3.5 h-3.5" /> All-India Leaderboard
+                      <Sparkles className="w-3.5 h-3.5" /> All-India Ranks
                     </button>
                     <button
                       onClick={() => setSocialSubTab('teams')}
-                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                         socialSubTab === 'teams' 
                           ? 'bg-slate-950 text-amber-300' 
                           : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
                       }`}
                     >
-                      <Users className="w-3.5 h-3.5" /> Study Squads & Chat
+                      <Users className="w-3.5 h-3.5" /> Study Squads
                     </button>
                     <button
                       onClick={() => setSocialSubTab('doubts')}
-                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                         socialSubTab === 'doubts' 
                           ? 'bg-slate-950 text-amber-300' 
                           : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
                       }`}
                     >
-                      <HelpCircle className="w-3.5 h-3.5" /> Doubt Q&A Community
+                      <HelpCircle className="w-3.5 h-3.5" /> Doubt Forum
                     </button>
                     <button
                       onClick={() => setSocialSubTab('notes')}
-                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                         socialSubTab === 'notes' 
                           ? 'bg-slate-950 text-amber-300' 
                           : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
                       }`}
                     >
-                      <Edit3 className="w-3.5 h-3.5" /> My Revision Notes
+                      <Edit3 className="w-3.5 h-3.5" /> Revision Notes
                     </button>
                   </div>
 
@@ -367,10 +367,10 @@ export default function App() {
 
         </main>
 
-        <footer className={`border-t py-6 text-center text-xs ${
+        <footer className={`border-t py-6 text-center text-xs pb-20 md:pb-6 ${
           isDark ? 'bg-slate-950 border-slate-800 text-slate-500' : 'bg-white border-slate-300 text-slate-600'
         }`}>
-          <p>NTA-Pattern NEET UG CBT Preparation Platform — Replicating Test Center Standards for Physics, Chemistry, Botany & Zoology.</p>
+          <p className="px-4">NTA-Pattern NEET UG CBT Preparation Platform — Replicating Test Center Standards for Physics, Chemistry, Botany & Zoology.</p>
         </footer>
 
       </div>

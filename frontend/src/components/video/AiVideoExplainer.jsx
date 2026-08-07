@@ -266,10 +266,10 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
       }`}>
         
         {/* Top Header Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6 py-2.5 border-b border-slate-800 bg-slate-900/90 gap-2 shrink-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-3 sm:px-6 py-2 border-b border-slate-800 bg-slate-900/90 gap-2 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[11px] font-extrabold shadow-md">
-              <Film className="w-3.5 h-3.5" /> 1080p Animated Video Theater
+            <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] sm:text-[11px] font-extrabold shadow-md">
+              <Film className="w-3.5 h-3.5" /> 1080p AI Video Theater
             </span>
           </div>
 
@@ -298,7 +298,7 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
                   setLanguage('hi');
                   handleReset();
                 }}
-                className={`px-2 py-0.5 rounded text-[11px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
                   language === 'hi' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -309,7 +309,7 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
                   setLanguage('en');
                   handleReset();
                 }}
-                className={`px-2 py-0.5 rounded text-[11px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
                   language === 'en' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -329,14 +329,13 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
           </div>
         </div>
 
-        {/* 1080p Video Stage with Live Screen Morphing Canvas (Fits perfectly inside modal without scrolling) */}
-        <div className="relative flex-1 min-h-[300px] max-h-[55vh] bg-slate-950 flex items-center justify-between p-4 sm:p-6 overflow-hidden">
+        {/* 1080p Video Stage with Live Screen Morphing Canvas */}
+        <div className="relative flex-1 min-h-[260px] max-h-[55vh] bg-slate-950 flex items-center justify-between p-3 sm:p-6 overflow-hidden">
           
-          {/* Animated Glow Backdrops */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-indigo-950/50 to-purple-950/40 pointer-events-none" />
 
           {/* Left Animated Avatar: Faculty */}
-          <div className={`relative flex flex-col items-center text-center space-y-1.5 z-10 transition-all duration-500 ${
+          <div className={`relative flex flex-col items-center text-center space-y-1 z-10 transition-all duration-500 ${
             activeDialogue.speaker === 'teacher' ? 'scale-105 opacity-100' : 'scale-95 opacity-45 blur-[0.4px]'
           }`}>
             <div className="relative">
@@ -348,22 +347,21 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
                 <img
                   src="/teacher_avatar.jpg"
                   alt="Teacher Avatar"
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover shadow-lg"
+                  className="w-16 h-16 sm:w-28 sm:h-28 rounded-xl object-cover shadow-lg"
                 />
               </div>
 
-              {/* Lip-Sync Animated Mouth Badge */}
               {activeDialogue.speaker === 'teacher' && isPlaying && (
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[9px] font-extrabold shadow-lg border border-amber-300">
-                  <Radio className="w-2.5 h-2.5 text-slate-950 animate-pulse" />
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[8px] sm:text-[9px] font-extrabold shadow-lg border border-amber-300">
+                  <Radio className="w-2 h-2 text-slate-950 animate-pulse" />
                   <span>SPEAKING</span>
                 </div>
               )}
             </div>
 
             <div>
-              <p className="text-xs font-extrabold text-white">Dr. S. K. Roy</p>
-              <p className="text-[10px] text-amber-400 font-bold">Faculty Mentor (HOD)</p>
+              <p className="text-[11px] sm:text-xs font-extrabold text-white">Dr. S. K. Roy</p>
+              <p className="text-[9px] sm:text-[10px] text-amber-400 font-bold">Faculty HOD</p>
             </div>
           </div>
 
@@ -374,9 +372,9 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
               
               <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 text-[10px] font-mono font-bold text-amber-300">
                 <span className="flex items-center gap-1">
-                  <Video className="w-3 h-3 text-amber-400" /> LIVE DEMO CANVAS
+                  <Video className="w-3 h-3 text-amber-400" /> DEMO CANVAS
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/30">
+                <span className="px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/30 truncate max-w-[110px]">
                   {activeDialogue.sceneName}
                 </span>
               </div>
@@ -415,8 +413,8 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
               {activeDialogue.previewType === 'ai-gen' && (
                 <div className="space-y-1.5 py-1 animate-fadeIn">
                   <div className="p-1.5 rounded bg-indigo-950 border border-indigo-700 text-[10px] text-indigo-200 space-y-0.5">
-                    <p className="font-extrabold text-amber-300">⚡ Gemini AI Question Generated</p>
-                    <p className="line-clamp-1 font-mono">Assertion: Ray Optics follows Snell's Law...</p>
+                    <p className="font-extrabold text-amber-300">⚡ Gemini AI Question</p>
+                    <p className="line-clamp-1 font-mono">Assertion: Ray Optics...</p>
                   </div>
                   <h4 className="text-xs font-extrabold text-indigo-400">{activeDialogue.previewTitle}</h4>
                 </div>
@@ -435,8 +433,8 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
               {activeDialogue.previewType === 'predictor' && (
                 <div className="space-y-1.5 py-1 animate-fadeIn">
                   <div className="p-1.5 rounded bg-blue-950 border border-blue-700 text-[10px] text-blue-200 text-left font-mono space-y-0.5">
-                    <p className="font-bold text-amber-300">AIIMS New Delhi (AIR #420)</p>
-                    <p className="text-emerald-400">99.4% Admission Probability</p>
+                    <p className="font-bold text-amber-300">AIIMS New Delhi</p>
+                    <p className="text-emerald-400">99.4% Admission Prob</p>
                   </div>
                   <h4 className="text-xs font-extrabold text-blue-400">{activeDialogue.previewTitle}</h4>
                 </div>
@@ -446,7 +444,7 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
           </div>
 
           {/* Right Animated Avatar: Student */}
-          <div className={`relative flex flex-col items-center text-center space-y-1.5 z-10 transition-all duration-500 ${
+          <div className={`relative flex flex-col items-center text-center space-y-1 z-10 transition-all duration-500 ${
             activeDialogue.speaker === 'student' ? 'scale-105 opacity-100' : 'scale-95 opacity-45 blur-[0.4px]'
           }`}>
             <div className="relative">
@@ -458,62 +456,61 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
                 <img
                   src="/student_avatar.jpg"
                   alt="Student Avatar"
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover shadow-lg"
+                  className="w-16 h-16 sm:w-28 sm:h-28 rounded-xl object-cover shadow-lg"
                 />
               </div>
 
-              {/* Lip-Sync Animated Mouth Badge */}
               {activeDialogue.speaker === 'student' && isPlaying && (
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500 text-white text-[9px] font-extrabold shadow-lg border border-blue-300">
-                  <Radio className="w-2.5 h-2.5 text-white animate-pulse" />
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500 text-white text-[8px] sm:text-[9px] font-extrabold shadow-lg border border-blue-300">
+                  <Radio className="w-2 h-2 text-white animate-pulse" />
                   <span>SPEAKING</span>
                 </div>
               )}
             </div>
 
             <div>
-              <p className="text-xs font-extrabold text-white">Rahul Kumar</p>
-              <p className="text-[10px] text-blue-400 font-bold">NEET 2026 Aspirant</p>
+              <p className="text-[11px] sm:text-xs font-extrabold text-white">Rahul Kumar</p>
+              <p className="text-[9px] sm:text-[10px] text-blue-400 font-bold">NEET Aspirant</p>
             </div>
           </div>
 
           {/* Animated Subtitle Speech Bubble Card */}
-          <div className="absolute bottom-3 inset-x-4 sm:inset-x-8 bg-slate-900/95 border border-slate-700/90 p-3 rounded-xl shadow-2xl text-center space-y-1 backdrop-blur-lg animate-fadeIn z-20">
+          <div className="absolute bottom-2 inset-x-3 sm:inset-x-8 bg-slate-900/95 border border-slate-700/90 p-2.5 rounded-xl shadow-2xl text-center space-y-0.5 backdrop-blur-lg animate-fadeIn z-20">
             <div className="flex items-center justify-center gap-2">
               <span className={`w-2 h-2 rounded-full ${activeDialogue.speaker === 'teacher' ? 'bg-amber-400' : 'bg-blue-400'}`} />
               <p className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
                 {activeDialogue.name} ({activeDialogue.role})
               </p>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-white leading-snug font-sans">
+            <p className="text-xs sm:text-sm font-semibold text-white leading-tight font-sans line-clamp-2">
               "{activeDialogue.subtitle}"
             </p>
           </div>
 
         </div>
 
-        {/* Video Player Controls Bar (Shrunk padding to fit 100% on screen without scrolling) */}
-        <div className="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        {/* Video Player Controls Bar */}
+        <div className="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-2 shrink-0">
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={handlePlayPause}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1 transition-all cursor-pointer"
             >
               {isPlaying ? (
                 <>
-                  <Pause className="w-3.5 h-3.5 fill-slate-950" /> Pause Video
+                  <Pause className="w-3.5 h-3.5 fill-slate-950" /> Pause
                 </>
               ) : (
                 <>
-                  <Play className="w-3.5 h-3.5 fill-slate-950" /> Play Animated Theater
+                  <Play className="w-3.5 h-3.5 fill-slate-950" /> Play
                 </>
               )}
             </button>
 
             <button
               onClick={handleReset}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
               title="Restart Video"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -521,14 +518,13 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
 
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
             >
               {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
             </button>
           </div>
 
-          {/* Timeline Dots */}
-          <div className="flex items-center gap-1.5">
+          <div className="hidden sm:flex items-center gap-1.5">
             {currentDialogueList.map((_, idx) => (
               <button
                 key={idx}
@@ -543,8 +539,8 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
             ))}
           </div>
 
-          <span className="text-[11px] font-mono font-bold text-slate-400">
-            {currentStep + 1} / {currentDialogueList.length} Steps
+          <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-400">
+            {currentStep + 1} / {currentDialogueList.length}
           </span>
 
         </div>

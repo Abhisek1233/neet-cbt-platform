@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Target, Award, MapPin, Building, BookOpen } from 'lucide-react';
+import { Sparkles, ShieldCheck, Target, Award, MapPin, Building } from 'lucide-react';
+import { getCounselingAdviceFromBackend } from '../../services/api';
 
 export default function CollegePredictor({ colleges, theme }) {
   const [inputScore, setInputScore] = useState(680);
@@ -41,17 +42,13 @@ export default function CollegePredictor({ colleges, theme }) {
   const handleGetAiCounseling = async () => {
     setIsConsultingAi(true);
     try {
-      const res = await fetch('http://localhost:4000/api/ai/generate-question', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'Counseling Advice',
-          chapter: `NEET Score ${inputScore}, AIR Rank ${inputRank}, Category ${category}`,
-          type: 'Admission Strategy'
-        })
+      const advice = await getCounselingAdviceFromBackend({
+        score: inputScore,
+        rank: inputRank,
+        category,
+        quota
       });
-      const data = await res.json();
-      setAiAdvice(`AI Analysis for AIR #${inputRank} (${inputScore} Marks, ${category} Category): Excellent chance for top Tier-1 Government Medical Colleges under All India Quota (MCC Round 1 & Round 2). Priority Recommendation: MAMC Delhi, VMMC Delhi, KGMU Lucknow, and JIPMER Puducherry.`);
+      setAiAdvice(advice);
     } catch (e) {
       setAiAdvice(`AI Analysis for AIR #${inputRank} (${inputScore} Marks): High probability for Tier-1 Govt Medical Colleges under AIQ 15% seats.`);
     }
@@ -61,19 +58,19 @@ export default function CollegePredictor({ colleges, theme }) {
   const results = getCategorizedColleges();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-6 animate-fadeIn">
       
       {/* Top Banner */}
-      <div className={`cbt-panel p-6 sm:p-8 border shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 ${
+      <div className={`cbt-panel p-5 sm:p-8 rounded-3xl border shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
         isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
       }`}>
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded bg-slate-900 text-amber-300 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> REAL-TIME AI MEDICAL ADMISSION PREDICTOR
+            <span className="px-3 py-1 text-xs font-extrabold uppercase tracking-wider rounded bg-slate-950 text-amber-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> AI MEDICAL ADMISSION PREDICTOR
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-display font-extrabold">
+          <h1 className="text-xl sm:text-3xl font-display font-extrabold">
             Predict MBBS Colleges & Seats (NEET UG)
           </h1>
           <p className={`text-xs mt-1 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
@@ -84,7 +81,7 @@ export default function CollegePredictor({ colleges, theme }) {
         <button
           onClick={handleGetAiCounseling}
           disabled={isConsultingAi}
-          className="px-5 py-3 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all shrink-0 cursor-pointer"
+          className="w-full sm:w-auto px-5 py-3 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all shrink-0 cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-amber-300" />
           {isConsultingAi ? 'Analyzing Seats with AI...' : 'Get Live AI Counseling Report'}
@@ -92,17 +89,17 @@ export default function CollegePredictor({ colleges, theme }) {
       </div>
 
       {/* Inputs Form */}
-      <div className={`cbt-panel p-6 border shadow-sm space-y-4 ${
+      <div className={`cbt-panel p-5 sm:p-6 rounded-3xl border shadow-sm space-y-4 ${
         isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
       }`}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div>
             <label className="text-xs font-bold block mb-1">NEET Score (Out of 720)</label>
             <input
               type="number"
               value={inputScore}
               onChange={(e) => setInputScore(parseInt(e.target.value) || 0)}
-              className={`w-full p-2.5 rounded border text-sm font-mono font-bold ${
+              className={`w-full p-2.5 rounded-xl border text-sm font-mono font-bold ${
                 isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
               }`}
             />
@@ -114,7 +111,7 @@ export default function CollegePredictor({ colleges, theme }) {
               type="number"
               value={inputRank}
               onChange={(e) => setInputRank(parseInt(e.target.value) || 0)}
-              className={`w-full p-2.5 rounded border text-sm font-mono font-bold ${
+              className={`w-full p-2.5 rounded-xl border text-sm font-mono font-bold ${
                 isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
               }`}
             />
@@ -125,7 +122,7 @@ export default function CollegePredictor({ colleges, theme }) {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className={`w-full p-2.5 rounded border text-xs font-bold ${
+              className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
                 isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-800'
               }`}
             >
@@ -141,7 +138,7 @@ export default function CollegePredictor({ colleges, theme }) {
             <select
               value={quota}
               onChange={(e) => setQuota(e.target.value)}
-              className={`w-full p-2.5 rounded border text-xs font-bold ${
+              className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
                 isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-800'
               }`}
             >
@@ -151,21 +148,21 @@ export default function CollegePredictor({ colleges, theme }) {
         </div>
 
         {aiAdvice && (
-          <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/40 text-xs text-purple-200 space-y-1 animate-fadeIn">
+          <div className="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/40 text-xs text-purple-200 space-y-1 animate-fadeIn">
             <span className="font-bold text-amber-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> AI Counseling Strategy:
             </span>
-            <p className="leading-relaxed">{aiAdvice}</p>
+            <p className="leading-relaxed font-medium">{aiAdvice}</p>
           </div>
         )}
       </div>
 
       {/* 3 Categories Column Results */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* Safe Colleges */}
         <div className="space-y-3">
-          <div className="p-3 rounded-lg bg-emerald-700 text-white flex items-center justify-between shadow-sm">
+          <div className="p-3 rounded-2xl bg-emerald-700 text-white flex items-center justify-between shadow-sm">
             <span className="text-xs font-extrabold uppercase flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4" /> High Chance (Safe Seats)
             </span>
@@ -173,7 +170,7 @@ export default function CollegePredictor({ colleges, theme }) {
           </div>
 
           {results.safe.map(({ college, cutoff }) => (
-            <div key={college.id} className={`cbt-panel p-4 rounded-xl border space-y-2 ${
+            <div key={college.id} className={`cbt-panel p-4 rounded-2xl border space-y-2 ${
               isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
             }`}>
               <h4 className="text-sm font-bold">{college.name}</h4>
@@ -191,7 +188,7 @@ export default function CollegePredictor({ colleges, theme }) {
 
         {/* Target Colleges */}
         <div className="space-y-3">
-          <div className="p-3 rounded-lg bg-amber-600 text-white flex items-center justify-between shadow-sm">
+          <div className="p-3 rounded-2xl bg-amber-600 text-white flex items-center justify-between shadow-sm">
             <span className="text-xs font-extrabold uppercase flex items-center gap-1.5">
               <Target className="w-4 h-4" /> Moderate Chance (Target)
             </span>
@@ -199,7 +196,7 @@ export default function CollegePredictor({ colleges, theme }) {
           </div>
 
           {results.target.map(({ college, cutoff }) => (
-            <div key={college.id} className={`cbt-panel p-4 rounded-xl border space-y-2 ${
+            <div key={college.id} className={`cbt-panel p-4 rounded-2xl border space-y-2 ${
               isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
             }`}>
               <h4 className="text-sm font-bold">{college.name}</h4>
@@ -217,7 +214,7 @@ export default function CollegePredictor({ colleges, theme }) {
 
         {/* Reach / Dream Colleges */}
         <div className="space-y-3">
-          <div className="p-3 rounded-lg bg-purple-800 text-white flex items-center justify-between shadow-sm">
+          <div className="p-3 rounded-2xl bg-purple-800 text-white flex items-center justify-between shadow-sm">
             <span className="text-xs font-extrabold uppercase flex items-center gap-1.5">
               <Award className="w-4 h-4" /> Reach / Dream Colleges
             </span>
@@ -225,7 +222,7 @@ export default function CollegePredictor({ colleges, theme }) {
           </div>
 
           {results.reach.map(({ college, cutoff }) => (
-            <div key={college.id} className={`cbt-panel p-4 rounded-xl border space-y-2 ${
+            <div key={college.id} className={`cbt-panel p-4 rounded-2xl border space-y-2 ${
               isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
             }`}>
               <h4 className="text-sm font-bold">{college.name}</h4>

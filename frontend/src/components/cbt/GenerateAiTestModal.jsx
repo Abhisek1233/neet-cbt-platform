@@ -53,21 +53,21 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className={`w-full max-w-md rounded-2xl p-6 border shadow-2xl space-y-5 ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      <div className={`w-full max-w-md rounded-3xl p-5 sm:p-6 border shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto ${
         isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
       }`}>
         <div className="flex items-center justify-between border-b pb-3 border-slate-300/30">
           <div className="flex items-center gap-2">
             <Cpu className="w-5 h-5 text-indigo-500" />
-            <h3 className="text-base font-extrabold">Generate Custom AI Test ({category})</h3>
+            <h3 className="text-sm sm:text-base font-extrabold">Generate Custom AI Test ({category})</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-slate-200/20 text-slate-400">
+          <button onClick={onClose} className="p-1 rounded-xl hover:bg-slate-200/20 text-slate-400 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleGenerateCustomTest} className="space-y-4">
+        <form onSubmit={handleGenerateCustomTest} className="space-y-3.5">
           <div>
             <label className="text-xs font-bold block mb-1">Test Title (Optional)</label>
             <input
@@ -75,7 +75,7 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
               placeholder={`e.g. AI ${category} Speed Paper #1`}
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
-              className={`w-full p-2.5 rounded border text-xs font-medium ${
+              className={`w-full p-2.5 rounded-xl border text-xs font-medium ${
                 isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
               }`}
             />
@@ -87,7 +87,7 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
               <select
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className={`w-full p-2.5 rounded border text-xs font-bold ${
+                className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
                   isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-800'
                 }`}
               >
@@ -107,7 +107,7 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
                 placeholder="e.g. Mendelian Genetics, Ray Optics..."
                 value={chapter}
                 onChange={(e) => setChapter(e.target.value)}
-                className={`w-full p-2.5 rounded border text-xs font-medium ${
+                className={`w-full p-2.5 rounded-xl border text-xs font-medium ${
                   isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
                 }`}
               />
@@ -122,7 +122,7 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
               max="200"
               value={questionCount}
               onChange={(e) => setQuestionCount(parseInt(e.target.value) || 10)}
-              className={`w-full p-2.5 rounded border text-xs font-mono font-bold ${
+              className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                 isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
               }`}
             />
