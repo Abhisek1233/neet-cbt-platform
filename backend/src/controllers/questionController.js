@@ -25,6 +25,25 @@ exports.createQuestion = async (req, res, next) => {
   }
 };
 
+exports.deleteQuestion = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await Question.deleteById(id);
+    return responseHandler.success(res, null, 'Question deleted successfully.');
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.clearAllQuestions = async (req, res, next) => {
+  try {
+    await Question.deleteAll();
+    return responseHandler.success(res, null, 'All questions cleared successfully.');
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.generateAiQuestion = async (req, res, next) => {
   try {
     const { subject = 'Physics', chapter = 'Ray Optics', type = 'Assertion-Reason' } = req.body;

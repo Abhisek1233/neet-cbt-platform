@@ -64,6 +64,28 @@ export async function saveQuestionToBackend(questionData) {
   }
 }
 
+export async function deleteQuestionFromBackend(id) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/questions/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+    return await res.json();
+  } catch (err) {
+    return { success: false };
+  }
+}
+
+export async function clearAllQuestionsInBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/questions/clear-all`, {
+      method: 'DELETE'
+    });
+    return await res.json();
+  } catch (err) {
+    return { success: false };
+  }
+}
+
 export async function generateAiQuestion(subject, chapter, type) {
   try {
     const controller = new AbortController();

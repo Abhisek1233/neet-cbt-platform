@@ -34,6 +34,24 @@ class Question {
     }
     return q;
   }
+
+  static async deleteById(id) {
+    try {
+      await pool.query('DELETE FROM questions WHERE id = $1', [id]);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static async deleteAll() {
+    try {
+      await pool.query('DELETE FROM questions');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 module.exports = Question;

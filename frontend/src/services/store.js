@@ -1,5 +1,5 @@
 import { mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
-import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend } from './api';
+import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend, deleteQuestionFromBackend, clearAllQuestionsInBackend } from './api';
 
 class Store {
   constructor() {
@@ -428,6 +428,19 @@ class Store {
     const updated = [q, ...this.state.questions];
     this.saveToStorage('questions', updated);
     this.setState({ questions: updated });
+  }
+
+  deleteQuestion(id) {
+    deleteQuestionFromBackend(id);
+    const updated = this.state.questions.filter((q) => q.id !== id);
+    this.saveToStorage('questions', updated);
+    this.setState({ questions: updated });
+  }
+
+  clearAllQuestions() {
+    clearAllQuestionsInBackend();
+    this.saveToStorage('questions', []);
+    this.setState({ questions: [] });
   }
 }
 
