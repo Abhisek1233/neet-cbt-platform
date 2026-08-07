@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Mic, Maximize2, ShieldCheck, ArrowRight, CheckCircle2, Play } from 'lucide-react';
+import { Camera, Mic, Maximize2, ShieldCheck, ArrowRight, Play, CheckCircle2 } from 'lucide-react';
 import { store } from '../../services/store';
 
 export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel }) {
@@ -7,7 +7,7 @@ export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel 
   const [cameraOk, setCameraOk] = useState(false);
   const [micOk, setMicOk] = useState(false);
   const [fullscreenOk, setFullscreenOk] = useState(false);
-  const [agreedToRules, setAgreedToRules] = useState(true); // Checked by default for instant start!
+  const [agreedToRules, setAgreedToRules] = useState(true);
   const [micLevel, setMicLevel] = useState(0);
 
   useEffect(() => {
@@ -111,12 +111,18 @@ export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel 
                   <Camera className="w-4 h-4 text-cyan-400" /> 1. AI Camera Feed
                 </span>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${cameraOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  {cameraOk ? '✓ READY' : 'ACTIVE'}
+                  {cameraOk ? '✓ ACTIVE' : 'SYSTEM READY'}
                 </span>
               </div>
-              <div className="relative w-full h-28 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 flex items-center justify-center">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
-                {!cameraOk && <span className="text-xs text-slate-500 font-mono">Camera Feed Initialized</span>}
+              <div className="relative w-full h-32 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 flex items-center justify-center p-2 text-center">
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover rounded-lg transform -scale-x-100" />
+                {!cameraOk && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-slate-900/90">
+                    <Camera className="w-6 h-6 text-cyan-400 mb-1.5 animate-pulse" />
+                    <span className="text-xs font-extrabold text-white">Camera Stream Active</span>
+                    <span className="text-[10px] text-slate-400 mt-0.5">Allow browser prompt if requested</span>
+                  </div>
+                )}
               </div>
             </div>
             <p className="text-[11px] text-slate-400 mt-2">
@@ -131,10 +137,10 @@ export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel 
                   <Mic className="w-4 h-4 text-cyan-400" /> 2. Audio Analyzer
                 </span>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${micOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  {micOk ? '✓ ACTIVE' : 'ACTIVE'}
+                  {micOk ? '✓ ACTIVE' : 'SYSTEM READY'}
                 </span>
               </div>
-              <div className="space-y-2.5 pt-1">
+              <div className="space-y-2.5 pt-2">
                 <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
                   <span>Microphone level:</span>
                   <span className="font-mono text-cyan-300 font-bold">{micLevel} dB</span>
@@ -158,18 +164,18 @@ export default function PreExamCheck({ exam, currentUser, onStartExam, onCancel 
                 <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                   <Maximize2 className="w-4 h-4 text-cyan-400" /> 3. Fullscreen Guard
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${fullscreenOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  {fullscreenOk ? '✓ LOCKED' : 'OPTIONAL'}
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${fullscreenOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                  {fullscreenOk ? '✓ LOCKED' : 'REQUIRED'}
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed mb-2">
+              <p className="text-xs text-slate-300 leading-relaxed mb-3">
                 Click below to lock full-screen mode or start test directly.
               </p>
               <button
                 onClick={requestFullscreen}
-                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold border border-cyan-500/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold border border-cyan-500/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Maximize2 className="w-3.5 h-3.5" /> Fullscreen Mode
+                <Maximize2 className="w-3.5 h-3.5" /> Enable Fullscreen Mode
               </button>
             </div>
             <p className="text-[11px] text-slate-400 mt-2">
