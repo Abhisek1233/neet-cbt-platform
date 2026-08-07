@@ -11,6 +11,20 @@ exports.getQuestions = async (req, res, next) => {
   }
 };
 
+exports.createQuestion = async (req, res, next) => {
+  try {
+    const q = req.body;
+    const newQ = await Question.create(q);
+
+    const io = req.app.get('io');
+    if (io) io.emit('db:new-question', newQ);
+
+    return responseHandler.success(res, newQ, 'Question created successfully.', 201);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.generateAiQuestion = async (req, res, next) => {
   try {
     const { subject = 'Physics', chapter = 'Ray Optics', type = 'Assertion-Reason' } = req.body;

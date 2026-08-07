@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Search, Sparkles, X, BookOpen, CheckCircle2, Cpu, FileCheck } from 'lucide-react';
+import { Plus, Search, Sparkles, X, BookOpen, CheckCircle2, Cpu, FileCheck, RefreshCw } from 'lucide-react';
 import { store } from '../../services/store';
-import { generateAiQuestion, generateQuestionsFromTeacherPrompt } from '../../services/api';
+import { generateQuestionsFromTeacherPrompt, fetchQuestionsFromBackend } from '../../services/api';
 import CreateExamModal from './CreateExamModal';
 import { showToast } from '../ui/Toast';
 
@@ -43,7 +43,7 @@ export default function QuestionBank({ questions, theme }) {
   const handleCreateQuestion = (e) => {
     e.preventDefault();
     if (!newQ.text || !newQ.opt0 || !newQ.opt1 || !newQ.opt2 || !newQ.opt3) {
-      alert('Please fill out the question text and all 4 options!');
+      showToast('⚠️ Please fill out the question statement and all 4 options!', 'error');
       return;
     }
 
@@ -72,7 +72,7 @@ export default function QuestionBank({ questions, theme }) {
     });
 
     setShowAddModal(false);
-    showToast('✅ Custom Question saved to Repository!', 'success');
+    showToast('✅ Custom Question saved to PostgreSQL Database!', 'success');
   };
 
   const handleExecuteAiPrompt = async (e) => {
@@ -88,157 +88,206 @@ export default function QuestionBank({ questions, theme }) {
     setIsGeneratingAi(false);
     setShowAiPromptModal(false);
     setAiCustomPrompt('');
-    showToast(`✨ Generated ${aiQuestions.length} Questions via Gemini AI Prompt!`, 'success');
+    showToast(`✨ Generated ${aiQuestions.length} Questions via Gemini AI Prompt & saved to DB!`, 'success');
+  };
+
+  const handleSyncRealDbQuestions = async () => {
+    showToast('🔄 Syncing fresh questions directly from Neon Cloud PostgreSQL...', 'info', 3000);
+    const remote = await fetchQuestionsFromBackend();
+    if (remote && remote.length > 0) {
+      localStorage.setItem('neet_cbt_questions', JSON.stringify(remote));
+      store.setState({ questions: remote });
+      showToast(`✅ Synced ${remote.length} live database questions from PostgreSQL!`, 'success');
+    } else {
+      showToast('ℹ️ No custom questions found in remote DB. Add some or generate with AI!', 'info');
+    }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-20 md:pb-8">
-      
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">Faculty Question Bank & Exam Suite</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Prompt Gemini AI, write/paste custom questions, and set private student exams with shareable access links.
-          </p>
+    <>
+      <div className="space-y-6 pb-20 md:pb-8">
+        
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 className={`text-xl sm:text-2xl font-display font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Faculty Question Bank & Exam Suite
+            </h2>
+            <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              Prompt Gemini AI, write/paste custom questions, and set private student exams with shareable access links.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowAiPromptModal(true)}
+              className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>AI Custom Prompt</span>
+            </button>
+
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Question</span>
+            </button>
+
+            <button
+              onClick={() => setShowCreateExamModal(true)}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <FileCheck className="w-4 h-4 text-slate-950" />
+              <span>Set Private Exam for Students</span>
+            </button>
+
+            <button
+              onClick={handleSyncRealDbQuestions}
+              title="Sync Real Live Database Questions"
+              className={`p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                isDark ? 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-700 hover:text-slate-900'
+              }`}
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => setShowAiPromptModal(true)}
-            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>AI Custom Prompt</span>
-          </button>
+        {/* Filter Bar */}
+        <div className={`p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row gap-3 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+        }`}>
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+            <input
+              type="text"
+              placeholder="Search questions or chapters..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-amber-400 ${
+                isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-900'
+              }`}
+            />
+          </div>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" /> Add Question
-          </button>
-
-          <button
-            onClick={() => setShowCreateExamModal(true)}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-          >
-            <FileCheck className="w-4 h-4 text-slate-950" /> Set Private Exam for Students
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className={`p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row gap-3 ${
-        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
-      }`}>
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-          <input
-            type="text"
-            placeholder="Search questions or chapters..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-amber-400 ${
-              isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-900'
+          <select
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold ${
+              isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-800'
             }`}
-          />
+          >
+            <option value="All">All Subjects</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Botany">Botany</option>
+            <option value="Zoology">Zoology</option>
+          </select>
+
+          <select
+            value={selectedDifficulty}
+            onChange={(e) => setSelectedDifficulty(e.target.value)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold ${
+              isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-800'
+            }`}
+          >
+            <option value="All">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
         </div>
 
-        <select
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-          className={`px-3 py-2 rounded-xl text-xs font-bold ${
-            isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-800'
-          }`}
-        >
-          <option value="All">All Subjects</option>
-          <option value="Physics">Physics</option>
-          <option value="Chemistry">Chemistry</option>
-          <option value="Botany">Botany</option>
-          <option value="Zoology">Zoology</option>
-        </select>
-
-        <select
-          value={selectedDifficulty}
-          onChange={(e) => setSelectedDifficulty(e.target.value)}
-          className={`px-3 py-2 rounded-xl text-xs font-bold ${
-            isDark ? 'bg-slate-950 border border-slate-800 text-white' : 'bg-slate-50 border border-slate-300 text-slate-800'
-          }`}
-        >
-          <option value="All">All Difficulties</option>
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-      </div>
-
-      {/* Questions List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold text-slate-400 font-mono">Showing {filteredQuestions.length} Questions</span>
-        </div>
-
-        {filteredQuestions.map((q, idx) => (
-          <div key={q.id || idx} className={`p-5 rounded-3xl border space-y-3 ${
-            isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
-          }`}>
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 font-mono text-xs font-extrabold">
-                  {q.subject}
-                </span>
-                <span className="text-xs text-slate-400 font-medium">{q.chapter}</span>
-                {q.isAiPredicted && (
-                  <span className="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700 text-[10px] font-bold">
-                    ⚡ Gemini AI
-                  </span>
-                )}
-              </div>
-
-              <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase ${
-                q.difficulty === 'Hard' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
-              }`}>
-                {q.difficulty || 'Medium'}
-              </span>
-            </div>
-
-            <p className="text-sm font-semibold leading-relaxed">{q.text}</p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {q.options && q.options.map((opt, optIdx) => {
-                const isCorrect = optIdx === q.correctOption;
-                return (
-                  <div
-                    key={optIdx}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between ${
-                      isCorrect
-                        ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 font-bold'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400'
-                    }`}
-                  >
-                    <span>{String.fromCharCode(65 + optIdx)}. {opt}</span>
-                    {isCorrect && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                  </div>
-                );
-              })}
-            </div>
-
-            {q.explanation && (
-              <div className="pt-2 border-t border-slate-800/80 text-xs text-slate-400 leading-relaxed">
-                <span className="font-bold text-amber-300 flex items-center gap-1 mb-0.5">
-                  <BookOpen className="w-3.5 h-3.5" /> Solution:
-                </span>
-                <p>{q.explanation}</p>
-              </div>
+        {/* Questions List */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold text-slate-400 font-mono">Showing {filteredQuestions.length} Questions</span>
+            {filteredQuestions.length > 0 && (
+              <button
+                onClick={handleSyncRealDbQuestions}
+                className="text-[11px] font-bold text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className="w-3 h-3" /> Refresh Database View
+              </button>
             )}
           </div>
-        ))}
+
+          {filteredQuestions.length === 0 ? (
+            <div className={`p-8 text-center rounded-3xl border space-y-3 ${
+              isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-300 text-slate-600'
+            }`}>
+              <BookOpen className="w-10 h-10 mx-auto text-slate-500" />
+              <h3 className="text-base font-extrabold">No Questions Found</h3>
+              <p className="text-xs max-w-sm mx-auto">
+                No questions match your current search filters. Click "AI Custom Prompt" or "Add Question" above to generate fresh questions into PostgreSQL!
+              </p>
+            </div>
+          ) : (
+            filteredQuestions.map((q, idx) => (
+              <div key={q.id || idx} className={`p-5 rounded-3xl border space-y-3 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
+              }`}>
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 font-mono text-xs font-extrabold">
+                      {q.subject}
+                    </span>
+                    <span className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{q.chapter}</span>
+                    {q.isAiPredicted && (
+                      <span className="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700 text-[10px] font-bold">
+                        ⚡ Gemini AI
+                      </span>
+                    )}
+                  </div>
+
+                  <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase ${
+                    q.difficulty === 'Hard' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
+                  }`}>
+                    {q.difficulty || 'Medium'}
+                  </span>
+                </div>
+
+                <p className="text-sm font-semibold leading-relaxed">{q.text}</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  {q.options && q.options.map((opt, optIdx) => {
+                    const isCorrect = optIdx === q.correctOption;
+                    return (
+                      <div
+                        key={optIdx}
+                        className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                          isCorrect
+                            ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 font-bold'
+                            : (isDark ? 'bg-slate-950/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700')
+                        }`}
+                      >
+                        <span>{String.fromCharCode(65 + optIdx)}. {opt}</span>
+                        {isCorrect && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {q.explanation && (
+                  <div className="pt-2 border-t border-slate-800/80 text-xs text-slate-400 leading-relaxed">
+                    <span className="font-bold text-amber-300 flex items-center gap-1 mb-0.5">
+                      <BookOpen className="w-3.5 h-3.5" /> Solution:
+                    </span>
+                    <p>{q.explanation}</p>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
       </div>
 
       {/* AI Prompt Generator Modal */}
       {showAiPromptModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
           <form onSubmit={handleExecuteAiPrompt} className="w-full max-w-lg bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 text-white">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
@@ -309,7 +358,7 @@ export default function QuestionBank({ questions, theme }) {
 
       {/* Manual Add Question Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
           <form onSubmit={handleCreateQuestion} className="w-full max-w-2xl bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-white">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-extrabold text-white">Author / Paste New Question</h3>
@@ -434,7 +483,6 @@ export default function QuestionBank({ questions, theme }) {
         selectedQuestions={filteredQuestions.slice(0, 10)}
         theme={theme}
       />
-
-    </div>
+    </>
   );
 }

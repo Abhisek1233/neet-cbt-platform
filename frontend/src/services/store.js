@@ -1,5 +1,5 @@
-import { mockQuestions, mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
-import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend } from './api';
+import { mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
+import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend } from './api';
 
 class Store {
   constructor() {
@@ -21,7 +21,7 @@ class Store {
       proctorAlertActive: null,
       proctorStrictness: 'Strict AI',
 
-      questions: this.loadFromStorage('questions', mockQuestions),
+      questions: this.loadFromStorage('questions', []),
       exams: this.loadFromStorage('customExams', mockExams),
       colleges: mockColleges,
       leaderboard: mockLeaderboard,
@@ -424,6 +424,7 @@ class Store {
 
   addQuestion(newQuestion) {
     const q = { ...newQuestion, id: newQuestion.id || `q_${Date.now()}` };
+    saveQuestionToBackend(q);
     const updated = [q, ...this.state.questions];
     this.saveToStorage('questions', updated);
     this.setState({ questions: updated });

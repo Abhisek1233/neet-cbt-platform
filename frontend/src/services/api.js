@@ -51,6 +51,19 @@ export async function fetchQuestionsFromBackend() {
   }
 }
 
+export async function saveQuestionToBackend(questionData) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/questions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(questionData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { success: false };
+  }
+}
+
 export async function generateAiQuestion(subject, chapter, type) {
   try {
     const controller = new AbortController();
