@@ -5,6 +5,17 @@ class Store {
   constructor() {
     this.listeners = new Set();
 
+    // Clear stale pre-loaded questions from local storage on fresh start
+    try {
+      const storedRaw = localStorage.getItem('neet_cbt_questions');
+      if (storedRaw) {
+        const parsed = JSON.parse(storedRaw);
+        if (Array.isArray(parsed) && parsed.some((q) => q.id && q.id.startsWith('ai_1786'))) {
+          localStorage.removeItem('neet_cbt_questions');
+        }
+      }
+    } catch (e) {}
+
     this.state = {
       theme: this.loadFromStorage('theme', 'light'),
       currentUser: this.loadFromStorage('user', null),
@@ -52,6 +63,8 @@ class Store {
         const uniqueQMap = new Map();
         mergedQ.forEach((q) => uniqueQMap.set(q.id, q));
         this.setState({ questions: Array.from(uniqueQMap.values()) });
+      } else {
+        this.setState({ questions: this.loadFromStorage('questions', []) });
       }
     } catch (e) {}
   }

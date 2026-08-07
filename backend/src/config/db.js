@@ -86,7 +86,8 @@ async function initPgDatabase() {
     `ALTER TABLE exams ADD COLUMN IF NOT EXISTS allowed_student_emails TEXT;`,
     `ALTER TABLE attempts ADD COLUMN IF NOT EXISTS student_email VARCHAR(100);`,
     `ALTER TABLE exams ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`,
-    `ALTER TABLE questions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`
+    `ALTER TABLE questions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`,
+    `DELETE FROM questions WHERE id LIKE 'ai_%';`
   ];
 
   for (const stmt of statements) {
@@ -96,7 +97,7 @@ async function initPgDatabase() {
       console.warn('⚠️ Statement Notice:', err.message);
     }
   }
-  console.log('🐘 Live PostgreSQL Database Connected & Migrated!');
+  console.log('🐘 Live PostgreSQL Database Connected & Cleaned (0 Pre-loaded Questions)!');
 }
 
 module.exports = { pool, initPgDatabase };
