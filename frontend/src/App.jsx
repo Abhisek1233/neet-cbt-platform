@@ -30,12 +30,41 @@ import { Play, ShieldCheck, Sparkles, Users, HelpCircle, Edit3, Plus, Lock } fro
 
 export default function App() {
   const [storeState, setStoreState] = useState(store.getState());
-  const [activeTab, setActiveTab] = useState('exams');
+
+  // Initialize activeTab from URL search query parameter ?tab=...
+  const getInitialTab = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'exams';
+  };
+
+  const [activeTab, setActiveTabState] = useState(getInitialTab());
   const [examCategory, setExamCategory] = useState('All');
   const [socialSubTab, setSocialSubTab] = useState('leaderboard');
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isStartingExamId, setIsStartingExamId] = useState(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
+  // Sync activeTab state with browser history (PushState & PopState)
+  const handleTabChange = (newTab, pushHistory = true) => {
+    setActiveTabState(newTab);
+    if (pushHistory) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', newTab);
+      window.history.pushState({ tab: newTab }, '', url.toString());
+    }
+  };
+
+  // Listen for Browser Back & Forward button clicks (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tabInUrl = params.get('tab') || 'exams';
+      setActiveTabState(tabInUrl);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = store.subscribe((newState) => {
@@ -155,7 +184,7 @@ export default function App() {
 
         <Navbar
           activeTab={activeTab}
-          setActiveTab={(tab) => setActiveTab(tab)}
+          setActiveTab={(tab) => handleTabChange(tab)}
           currentUser={currentUser}
           onOpenAuth={() => setIsAuthOpen(true)}
           theme={storeState.theme}

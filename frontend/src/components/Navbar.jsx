@@ -17,6 +17,14 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
 
   const isDark = theme === 'dark';
 
+  const handleNavClick = (tabId) => {
+    if (!currentUser) {
+      onOpenAuth();
+    } else {
+      setActiveTab(tabId);
+    }
+  };
+
   return (
     <>
       {/* Desktop & Main Header Bar */}
@@ -46,35 +54,37 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               </div>
             </div>
 
-            {/* CENTER: Navigation Links (Desktop) */}
-            <nav className="hidden md:flex items-center gap-1 bg-slate-950/70 p-1.5 rounded-xl border border-slate-700 mx-auto">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id || (item.id === 'predictor' && ['predictor', 'cutoffs', 'compare'].includes(activeTab));
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-amber-400 text-slate-950 shadow'
-                        : 'text-slate-200 hover:text-white hover:bg-slate-800'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{item.label}</span>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded bg-indigo-500 text-white shadow-sm">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
+            {/* CENTER: Navigation Links (Desktop) - Only show when logged in */}
+            {currentUser && (
+              <nav className="hidden md:flex items-center gap-1 bg-slate-950/70 p-1.5 rounded-xl border border-slate-700 mx-auto">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id || (item.id === 'predictor' && ['predictor', 'cutoffs', 'compare'].includes(activeTab));
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-amber-400 text-slate-950 shadow'
+                          : 'text-slate-200 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded bg-indigo-500 text-white shadow-sm">
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            )}
 
             {/* FAR RIGHT: Dark Mode Toggle & Auth Controls */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto md:ml-0">
               
               {/* Visual Icon Switch Toggle for Dark/Light Mode */}
               <button
@@ -161,27 +171,29 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar (Phones & Small Tablets) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-md px-2 py-1.5 flex items-center justify-around">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id || (item.id === 'predictor' && ['predictor', 'cutoffs', 'compare'].includes(activeTab));
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition-all cursor-pointer ${
-                isActive
-                  ? 'text-amber-400 bg-slate-900 border border-slate-800 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="truncate max-w-[64px]">{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Mobile Bottom Navigation Bar (Phones & Small Tablets) - Only show when logged in */}
+      {currentUser && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-md px-2 py-1.5 flex items-center justify-around">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id || (item.id === 'predictor' && ['predictor', 'cutoffs', 'compare'].includes(activeTab));
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`flex flex-col items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition-all cursor-pointer ${
+                  isActive
+                    ? 'text-amber-400 bg-slate-900 border border-slate-800 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="truncate max-w-[64px]">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
