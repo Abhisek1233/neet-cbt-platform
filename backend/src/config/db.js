@@ -83,8 +83,13 @@ async function initPgDatabase() {
         members TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      ALTER TABLE exams ADD COLUMN IF NOT EXISTS allowed_student_emails TEXT;
+      ALTER TABLE attempts ADD COLUMN IF NOT EXISTS student_email VARCHAR(100);
+      ALTER TABLE exams ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+      ALTER TABLE questions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
     `);
-    console.log('🐘 Live PostgreSQL Database Connected & Tables Initialized!');
+    console.log('🐘 Live PostgreSQL Database Connected & Migrated!');
   } catch (err) {
     console.warn('⚠️ PostgreSQL Connection Notice:', err.message);
   }
