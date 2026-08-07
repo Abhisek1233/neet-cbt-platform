@@ -1,0 +1,379 @@
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import AuthModal from './components/auth/AuthModal';
+import LandingPage from './components/auth/LandingPage';
+
+import PreExamCheck from './components/cbt/PreExamCheck';
+import ExamEngine from './components/cbt/ExamEngine';
+import PostExamScorecard from './components/cbt/PostExamScorecard';
+import GenerateAiTestModal from './components/cbt/GenerateAiTestModal';
+
+import ProctorMonitor from './components/proctoring/ProctorMonitor';
+import ProctorAlertOverlay from './components/proctoring/ProctorAlertOverlay';
+
+import QuestionBank from './components/teacher/QuestionBank';
+import LiveProctoringDashboard from './components/teacher/LiveProctoringDashboard';
+
+import Leaderboard from './components/social/Leaderboard';
+import StudyTeams from './components/social/StudyTeams';
+import DoubtForum from './components/social/DoubtForum';
+import MyNotes from './components/social/MyNotes';
+
+import CollegePredictor from './components/predictor/CollegePredictor';
+import CutoffExplorer from './components/predictor/CutoffExplorer';
+
+import ToastContainer, { showToast } from './components/ui/Toast';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+
+import { store } from './services/store';
+import { Play, ShieldCheck, Sparkles, Users, HelpCircle, Edit3, Plus } from 'lucide-react';
+
+export default function App() {
+  const [storeState, setStoreState] = useState(store.getState());
+  const [activeTab, setActiveTab] = useState('exams');
+  const [examCategory, setExamCategory] = useState('All');
+  const [socialSubTab, setSocialSubTab] = useState('leaderboard');
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isStartingExamId, setIsStartingExamId] = useState(null);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe((newState) => {
+      setStoreState(newState);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const theme = storeState.theme || 'light';
+    document.body.className = `theme-${theme} font-sans antialiased min-h-screen`;
+  }, [storeState.theme]);
+
+  const handleStartExamFlow = async (exam) => {
+    setIsStartingExamId(exam.id);
+    showToast(`⚡ Connecting to Google Gemini AI to generate fresh questions for ${exam.title}...`, 'info', 4000);
+    await store.startPreExamCheck(exam);
+    setIsStartingExamId(null);
+  };
+
+  const currentUser = storeState.currentUser;
+  const activeExamPhase = storeState.activeExamPhase;
+  const activeExam = storeState.activeExam;
+  const isDark = storeState.theme === 'dark';
+
+  const filteredExams = storeState.exams.filter((e) => {
+    if (examCategory === 'All') return true;
+    return e.category === examCategory;
+  });
+
+  if (activeExamPhase === 'pre-check' && activeExam) {
+    return (
+      <ErrorBoundary>
+        <PreExamCheck
+          exam={activeExam}
+          currentUser={currentUser || { name: 'Guest Aspirant', isGuest: true }}
+          onStartExam={() => store.startActiveExam()}
+          onCancel={() => store.exitExamToHome()}
+          theme={storeState.theme}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  if (activeExamPhase === 'taking' && activeExam) {
+    return (
+      <ErrorBoundary>
+        <div className="relative min-h-screen cbt-canvas">
+          <ProctorMonitor exam={activeExam} isTakingExam={true} />
+          <ProctorAlertOverlay activeAlert={storeState.proctorAlertActive} />
+          <ExamEngine
+            exam={activeExam}
+            currentUser={currentUser || { name: 'Guest Aspirant', isGuest: true }}
+            storeState={storeState}
+            onExit={() => store.exitExamToHome()}
+          />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  if (activeExamPhase === 'scorecard' && storeState.submittedAttempts[0]) {
+    return (
+      <ErrorBoundary>
+        <PostExamScorecard
+          attempt={storeState.submittedAttempts[0]}
+          storeState={storeState}
+          onExit={() => store.exitExamToHome()}
+          theme={storeState.theme}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <div className={`min-h-screen flex flex-col font-sans transition-colors ${
+        isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
+      }`}>
+        
+        <ToastContainer />
+
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={(tab) => setActiveTab(tab)}
+          currentUser={currentUser}
+          onOpenAuth={() => setIsAuthOpen(true)}
+          theme={storeState.theme}
+        />
+
+        <AuthModal
+          isOpen={isAuthOpen}
+          onClose={() => setIsAuthOpen(false)}
+          currentUser={currentUser}
+          theme={storeState.theme}
+        />
+
+        <GenerateAiTestModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+          category={examCategory === 'All' ? 'Full-Length' : examCategory}
+          theme={storeState.theme}
+        />
+
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+          
+          {!currentUser ? (
+            <LandingPage onOpenAuth={() => setIsAuthOpen(true)} theme={storeState.theme} />
+          ) : (
+            <>
+              {activeTab === 'exams' && (
+                <div className="space-y-6 animate-fadeIn">
+                  
+                  {/* Top NTA Pattern Banner */}
+                  <div className={`cbt-panel p-6 sm:p-8 border shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 ${
+                    isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+                  }`}>
+                    <div className="max-w-2xl">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-slate-900 text-amber-300 text-xs font-extrabold mb-3">
+                        <ShieldCheck className="w-4 h-4 text-amber-400" /> NTA-PATTERN 200-QUESTION FORMAT & DYNAMIC GEMINI AI GENERATION
+                      </span>
+                      <h1 className={`text-2xl sm:text-3xl font-display font-extrabold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        National Eligibility cum Entrance Test (NEET UG) Mock CBT Portal
+                      </h1>
+                      <p className={`text-xs sm:text-sm mt-2 leading-relaxed font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                        Practice on existing tests or generate unlimited fresh AI mock papers for Subject-Wise, Topic-Wise, Full-Length, and AI High-Yield series!
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setIsAiModalOpen(true)}
+                      className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      <span>Generate New AI Test Paper</span>
+                    </button>
+                  </div>
+
+                  {/* Exam Categories Navigation Sub-Tabs */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-slate-300 shadow-sm overflow-x-auto">
+                        <button
+                          onClick={() => setExamCategory('All')}
+                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                            examCategory === 'All' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          All Exams
+                        </button>
+                        <button
+                          onClick={() => setExamCategory('Full-Length')}
+                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                            examCategory === 'Full-Length' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          Full Mocks (200Q, 720M)
+                        </button>
+                        <button
+                          onClick={() => setExamCategory('Subject-Wise')}
+                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                            examCategory === 'Subject-Wise' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          Subject-Wise Mocks
+                        </button>
+                        <button
+                          onClick={() => setExamCategory('Topic-Wise')}
+                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                            examCategory === 'Topic-Wise' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          Topic Speed Tests
+                        </button>
+                        <button
+                          onClick={() => setExamCategory('AI-Predicted')}
+                          className={`px-3.5 py-1.5 rounded text-xs font-extrabold transition-all ${
+                            examCategory === 'AI-Predicted' ? 'bg-slate-900 text-amber-300' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          AI High-Yield Series
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono font-bold text-slate-600">{filteredExams.length} Tests Ready</span>
+                        <button
+                          onClick={() => setIsAiModalOpen(true)}
+                          className="px-3 py-1.5 rounded bg-indigo-600 text-white font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Generate {examCategory === 'All' ? 'Custom' : examCategory} Test</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Exams Cards Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredExams.map((exam) => (
+                        <div key={exam.id} className={`cbt-panel p-6 border flex flex-col justify-between hover:shadow-md transition-all space-y-4 ${
+                          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+                        }`}>
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="px-2.5 py-0.5 rounded bg-slate-900 text-amber-300 font-mono text-[11px] font-extrabold">
+                                {exam.code}
+                              </span>
+                              <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold border border-purple-300">
+                                {exam.proctoringLevel}
+                              </span>
+                            </div>
+
+                            <h3 className={`text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.title}</h3>
+                            <p className="text-xs text-slate-500 mt-1">Created by {exam.createdBy}</p>
+
+                            <div className={`grid grid-cols-3 gap-2 mt-4 p-3 rounded-lg border text-center text-xs font-mono ${
+                              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                            }`}>
+                              <div>
+                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Duration</p>
+                                <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.durationMin}m</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Total Marks</p>
+                                <p className="font-bold text-blue-700">{exam.totalMarks}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Questions</p>
+                                <p className="font-bold text-emerald-700">{exam.questionCount}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleStartExamFlow(exam)}
+                            disabled={isStartingExamId === exam.id}
+                            className="w-full py-3 rounded bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-xs shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          >
+                            {isStartingExamId === exam.id ? (
+                              <span className="flex items-center gap-1.5 animate-pulse">
+                                <Sparkles className="w-4 h-4 text-amber-300" /> Generating AI Questions...
+                              </span>
+                            ) : (
+                              <>
+                                <Play className="w-4 h-4 fill-white" /> Start AI CBT Mock Test
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {activeTab === 'predictor' && (
+                <CollegePredictor colleges={storeState.colleges} theme={storeState.theme} />
+              )}
+
+              {activeTab === 'cutoffs' && (
+                <CutoffExplorer colleges={storeState.colleges} theme={storeState.theme} />
+              )}
+
+              {activeTab === 'social' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <div className={`flex items-center gap-2 p-1.5 rounded-lg border w-fit shadow-sm ${
+                    isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+                  }`}>
+                    <button
+                      onClick={() => setSocialSubTab('leaderboard')}
+                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        socialSubTab === 'leaderboard' 
+                          ? 'bg-slate-950 text-amber-300' 
+                          : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" /> All-India Leaderboard
+                    </button>
+                    <button
+                      onClick={() => setSocialSubTab('teams')}
+                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        socialSubTab === 'teams' 
+                          ? 'bg-slate-950 text-amber-300' 
+                          : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5" /> Study Squads & Chat
+                    </button>
+                    <button
+                      onClick={() => setSocialSubTab('doubts')}
+                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        socialSubTab === 'doubts' 
+                          ? 'bg-slate-950 text-amber-300' 
+                          : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
+                      }`}
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" /> Doubt Q&A Community
+                    </button>
+                    <button
+                      onClick={() => setSocialSubTab('notes')}
+                      className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        socialSubTab === 'notes' 
+                          ? 'bg-slate-950 text-amber-300' 
+                          : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900')
+                      }`}
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> My Revision Notes
+                    </button>
+                  </div>
+
+                  {socialSubTab === 'leaderboard' && <Leaderboard theme={storeState.theme} />}
+                  {socialSubTab === 'teams' && <StudyTeams teams={storeState.teams} currentUser={currentUser} theme={storeState.theme} />}
+                  {socialSubTab === 'doubts' && <DoubtForum doubts={storeState.doubts} currentUser={currentUser} theme={storeState.theme} />}
+                  {socialSubTab === 'notes' && <MyNotes notes={storeState.userNotes} questions={storeState.questions} theme={storeState.theme} />}
+                </div>
+              )}
+
+              {activeTab === 'teacher-qbank' && (
+                <QuestionBank questions={storeState.questions} storeState={storeState} theme={storeState.theme} />
+              )}
+
+              {activeTab === 'teacher-proctoring' && (
+                <LiveProctoringDashboard storeState={storeState} theme={storeState.theme} />
+              )}
+            </>
+          )}
+
+        </main>
+
+        <footer className={`border-t py-6 text-center text-xs ${
+          isDark ? 'bg-slate-950 border-slate-800 text-slate-500' : 'bg-white border-slate-300 text-slate-600'
+        }`}>
+          <p>NTA-Pattern NEET UG CBT Preparation Platform — Replicating Test Center Standards for Physics, Chemistry, Botany & Zoology.</p>
+        </footer>
+
+      </div>
+    </ErrorBoundary>
+  );
+}

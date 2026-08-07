@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body.theme-light {
+    @apply bg-slate-100 text-slate-900;
+  }
+
+  body.theme-dark {
+    @apply bg-slate-950 text-slate-100;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* NTA CBT Card & Panel Styling */
+.cbt-panel {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.theme-light .cbt-panel {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+body.theme-dark .cbt-panel {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+}
+
+.cbt-header-bar {
+  background: linear-gradient(135deg, #002b49 0%, #004080 100%);
+  color: #ffffff;
+}
+
+/* Official NTA CBT Exam Interface Theme Styles */
+.cbt-canvas {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.cbt-question-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* NTA Official Status Clip Paths & Badges */
+.q-btn-not-visited {
+  background-color: #e2e8f0;
+  color: #334155;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+}
+.q-btn-not-answered {
+  background-color: #d32f2f;
+  color: #ffffff;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%);
+}
+.q-btn-answered {
+  background-color: #2e7d32;
+  color: #ffffff;
+  clip-path: polygon(0% 25%, 50% 0%, 100% 25%, 100% 100%, 0% 100%);
+}
+.q-btn-marked {
+  background-color: #7b1fa2;
+  color: #ffffff;
+  border-radius: 50%;
+}
+.q-btn-marked-answered {
+  background-color: #512da8;
+  color: #ffffff;
+  border-radius: 50%;
+  position: relative;
+}
+.q-btn-marked-answered::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background-color: #00e676;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}

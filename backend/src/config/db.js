@@ -1,0 +1,65 @@
+const { Pool } = require('pg');
+
+const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:secretpassword@localhost:5432/neet_cbt_db';
+const isCloudDb = dbUrl.includes('neon.tech') || dbUrl.includes('sslmode=require');
+
+const pool = new Pool({
+  connectionString: dbUrl,
+  ssl: isCloudDb ? { rejectUnauthorized: false } : false
+});
+
+async function initPgDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS questions (
+        id VARCHAR(100) PRIMARY KEY,
+        subject VARCHAR(100),
+        chapter VARCHAR(150),
+        difficulty VARCHAR(50),
+        type VARCHAR(50),
+        text TEXT,
+        options TEXT,
+        correct_option INT,
+        explanation TEXT,
+        is_ai_predicted BOOLEAN DEFAULT FALSE,
+        probability_weight VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS exams (
+        id VARCHAR(100) PRIMARY KEY,
+        title VARCHAR(200),
+        category VARCHAR(50),
+        code VARCHAR(50),
+        duration_min INT,
+        total_marks INT,
+        question_count INT,
+        marking_scheme VARCHAR(100),
+        sections TEXT,
+        proctoring_level VARCHAR(50),
+        created_by VARCHAR(100),
+        question_ids TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS attempts (
+        id VARCHAR(100) PRIMARY KEY,
+        exam_id VARCHAR(100),
+        student_name VARCHAR(100),
+        score INT,
+        total_possible_score INT,
+        correct_count INT,
+        incorrect_count INT,
+        unattempted_count INT,
+        accuracy INT,
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        responses TEXT,
+        proctor_logs TEXT
+      );
+    `);
+    console.log('🐘 Live PostgreSQL Database Connected & Tables Initialized!');
+  } catch (err) {
+    console.warn('⚠️ PostgreSQL Connection Notice:', err.message);
+  }
+}
+
+module.exports = { pool, initPgDatabase };
