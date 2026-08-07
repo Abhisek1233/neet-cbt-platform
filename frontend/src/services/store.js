@@ -40,7 +40,6 @@ class Store {
       if (remoteExams && remoteExams.length > 0) {
         const customExams = this.loadFromStorage('customExams', []);
         const merged = [...customExams, ...remoteExams];
-        // Remove duplicates by id
         const uniqueMap = new Map();
         merged.forEach((e) => uniqueMap.set(e.id, e));
         this.setState({ exams: Array.from(uniqueMap.values()) });
@@ -49,7 +48,7 @@ class Store {
       const remoteQuestions = await fetchQuestionsFromBackend();
       if (remoteQuestions && remoteQuestions.length > 0) {
         const storedQ = this.loadFromStorage('questions', []);
-        const mergedQ = [...storedQ, ...remoteQuestions];
+        const mergedQ = [...remoteQuestions, ...storedQ];
         const uniqueQMap = new Map();
         mergedQ.forEach((q) => uniqueQMap.set(q.id, q));
         this.setState({ questions: Array.from(uniqueQMap.values()) });
@@ -154,7 +153,6 @@ class Store {
       questionIds: examData.questionIds || []
     };
 
-    // Save to real-time Neon PostgreSQL database
     createExamInBackend(newExam);
 
     const updatedExams = [newExam, ...this.state.exams];

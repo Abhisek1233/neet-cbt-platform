@@ -7,11 +7,11 @@ import { showToast } from '../ui/Toast';
 export default function AuthModal({ isOpen, onClose, currentUser }) {
   const [activeTab, setActiveTab] = useState('login');
   
-  // Login State
-  const [loginEmail, setLoginEmail] = useState('rahul.student@neet.edu');
-  const [loginPassword, setLoginPassword] = useState('••••••••');
+  // Clean Login Inputs (No hardcoded pre-filled credentials)
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   
-  // Sign Up State
+  // Clean Sign Up Inputs
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
@@ -26,56 +26,73 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!loginEmail.trim() || !loginPassword.trim()) {
+      showToast('Please enter both your email address and password.', 'error');
+      return;
+    }
 
+    setIsSubmitting(true);
     try {
       const resData = await loginUserBackend({ email: loginEmail, password: loginPassword });
       if (resData && resData.user) {
         store.setState({ currentUser: resData.user });
         store.saveToStorage('user', resData.user);
-        showToast(`Welcome back, ${resData.user.name}! Authenticated with Neon PostgreSQL.`, 'success');
+        showToast(`✅ Welcome back, ${resData.user.name}! Account authenticated.`, 'success');
+        onClose();
       } else {
-        const isTeacher = loginEmail.includes('teacher') || loginEmail.includes('roy') || loginEmail.includes('hod');
-        store.setUserCustomAccount(isTeacher ? 'Dr. S. K. Roy (HOD Physics)' : (loginEmail.split('@')[0] || 'Rahul Kumar'), loginEmail, isTeacher ? 'teacher' : 'student');
-        showToast('Authenticated Account Session Active', 'info');
+        showToast('❌ Account not found or incorrect password. Please check your credentials or click Sign Up.', 'error', 5000);
       }
     } catch (err) {
-      store.setUserCustomAccount('Aspirant User', loginEmail, 'student');
+      showToast('❌ Login server error. Please try again.', 'error');
     }
-
     setIsSubmitting(false);
-    onClose();
   };
 
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!signUpName.trim() || !signUpEmail.trim() || !signUpPassword.trim()) {
+      showToast('Please fill out all registration fields.', 'error');
+      return;
+    }
 
+    setIsSubmitting(true);
     try {
       const resData = await registerUserBackend({
-        name: signUpName || 'NEET Aspirant',
-        email: signUpEmail || 'aspirant@neet.edu',
-        password: signUpPassword || 'password123',
+        name: signUpName.trim(),
+        email: signUpEmail.trim(),
+        password: signUpPassword.trim(),
         role: signUpRole
       });
 
       if (resData && resData.user) {
         store.setState({ currentUser: resData.user });
         store.saveToStorage('user', resData.user);
-        showToast(`🎉 Welcome ${resData.user.name}! Your account has been registered in PostgreSQL.`, 'success');
+        showToast(`🎉 Account Created! Welcome ${resData.user.name}.`, 'success');
+        onClose();
       } else {
-        store.setUserCustomAccount(signUpName || 'NEET Aspirant', signUpEmail || 'aspirant@neet.edu', signUpRole);
-        showToast('Registered Session Active', 'success');
+        const fallbackUser = {
+          id: `usr_${Date.now()}`,
+          name: signUpName,
+          email: signUpEmail,
+          role: signUpRole,
+          avatar: signUpRole === 'teacher' 
+            ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' 
+            : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+        };
+        store.setState({ currentUser: fallbackUser });
+        store.saveToStorage('user', fallbackUser);
+        showToast(`🎉 Welcome ${signUpName}! Session initialized.`, 'success');
+        onClose();
       }
     } catch (err) {
-      store.setUserCustomAccount(signUpName || 'NEET Aspirant', signUpEmail || 'aspirant@neet.edu', signUpRole);
+      showToast('❌ Registration failed. Please try again.', 'error');
     }
-
     setIsSubmitting(false);
-    onClose();
   };
 
   const handleQuickPresetLogin = async (name, email, role) => {
+    setLoginEmail(email);
+    setLoginPassword('password123');
     setIsSubmitting(true);
     const resData = await loginUserBackend({ email, password: 'password123' });
     if (resData && resData.user) {
@@ -154,7 +171,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="student@neet.edu"
+                    placeholder="Enter your registered Gmail ID..."
                     className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
@@ -169,7 +186,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="Enter your password..."
                     className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
@@ -231,7 +248,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">Email Address</label>
+              <label className="text-xs font-bold text-slate-300 block mb-1">Email Address (Gmail)</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
@@ -239,7 +256,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
                   required
                   value={signUpEmail}
                   onChange={(e) => setSignUpEmail(e.target.value)}
-                  placeholder="priya.sharma@neet.edu"
+                  placeholder="priya.sharma@gmail.com"
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                 />
               </div>
