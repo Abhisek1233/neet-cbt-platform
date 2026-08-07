@@ -54,6 +54,10 @@ export default function App() {
     }
   };
 
+  const handleStartGuestFlow = () => {
+    handleTabChange('exams', true);
+  };
+
   // Listen for Browser Back & Forward button clicks (popstate)
   useEffect(() => {
     const handlePopState = () => {
@@ -187,6 +191,7 @@ export default function App() {
           setActiveTab={(tab) => handleTabChange(tab)}
           currentUser={currentUser}
           onOpenAuth={() => setIsAuthOpen(true)}
+          onStartGuest={handleStartGuestFlow}
           theme={storeState.theme}
         />
 
@@ -207,7 +212,7 @@ export default function App() {
         <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 pb-20 md:pb-8">
           
           {!currentUser ? (
-            <LandingPage onOpenAuth={() => setIsAuthOpen(true)} theme={storeState.theme} />
+            <LandingPage onOpenAuth={() => setIsAuthOpen(true)} onStartGuest={handleStartGuestFlow} theme={storeState.theme} />
           ) : (
             <>
               {activeTab === 'exams' && (

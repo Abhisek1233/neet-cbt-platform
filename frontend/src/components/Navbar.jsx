@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileText, Users, GraduationCap, BookOpen, Eye, ChevronDown, Sun, Moon, LogOut, UserCheck, Play } from 'lucide-react';
 import { store } from '../services/store';
 
-export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAuth, theme }) {
+export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAuth, onStartGuest, theme }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const navItems = [
@@ -22,6 +22,13 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       onOpenAuth();
     } else {
       setActiveTab(tabId);
+    }
+  };
+
+  const handleStartGuest = () => {
+    store.setUserRole('student', true, 'Guest Aspirant');
+    if (onStartGuest) {
+      onStartGuest();
     }
   };
 
@@ -105,7 +112,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               {!currentUser ? (
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => store.setUserRole('student', true, 'Guest Aspirant')}
+                    onClick={handleStartGuest}
                     className="px-2.5 py-1.5 rounded-lg bg-slate-950/80 border border-slate-700 text-amber-300 hover:bg-slate-800 text-[11px] sm:text-xs font-extrabold flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Play className="w-3 h-3 fill-amber-300" /> <span className="hidden sm:inline">Guest</span>

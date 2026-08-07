@@ -3,12 +3,15 @@ import { Play, ShieldCheck, UserCheck, GraduationCap, Cpu, Award, Video } from '
 import { store } from '../../services/store';
 import AiVideoExplainer from '../video/AiVideoExplainer';
 
-export default function LandingPage({ onOpenAuth, theme }) {
+export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const isDark = theme === 'dark';
 
   const handleStartGuestMode = () => {
     store.setUserRole('student', true, 'Guest Aspirant');
+    if (onStartGuest) {
+      onStartGuest();
+    }
   };
 
   return (
