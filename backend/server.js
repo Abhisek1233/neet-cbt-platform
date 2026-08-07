@@ -80,35 +80,44 @@ app.get('/', (req, res) => {
   });
 });
 
-// Admin DB Overview Route: View all tables in PostgreSQL
+// Admin DB Overview Route: Robust Safe Inspector for PostgreSQL
 app.get('/api/admin/db-overview', async (req, res) => {
+  const safeQuery = async (queryText) => {
+    try {
+      const result = await pool.query(queryText);
+      return result.rows || [];
+    } catch (e) {
+      return [{ notice: `Table initializing or notice: ${e.message}` }];
+    }
+  };
+
   try {
-    const usersRes = await pool.query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 50');
-    const questionsRes = await pool.query('SELECT id, subject, chapter, difficulty, text, created_at FROM questions ORDER BY created_at DESC LIMIT 50');
-    const examsRes = await pool.query('SELECT id, title, category, code, duration_min, created_by, allowed_student_emails, created_at FROM exams ORDER BY created_at DESC LIMIT 50');
-    const attemptsRes = await pool.query('SELECT id, exam_id, student_name, student_email, score, total_possible_score, accuracy, submitted_at FROM attempts ORDER BY submitted_at DESC LIMIT 50');
-    const teamsRes = await pool.query('SELECT id, name, description, member_count, creator, created_at FROM teams ORDER BY created_at DESC LIMIT 50');
+    const users = await safeQuery('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 50');
+    const questions = await safeQuery('SELECT id, subject, chapter, difficulty, text, created_at FROM questions ORDER BY created_at DESC LIMIT 50');
+    const exams = await safeQuery('SELECT id, title, category, code, duration_min, created_by, allowed_student_emails, created_at FROM exams ORDER BY created_at DESC LIMIT 50');
+    const attempts = await safeQuery('SELECT id, exam_id, student_name, student_email, score, total_possible_score, accuracy, submitted_at FROM attempts ORDER BY submitted_at DESC LIMIT 50');
+    const teams = await safeQuery('SELECT id, name, description, member_count, creator, created_at FROM teams ORDER BY created_at DESC LIMIT 50');
 
     res.json({
       database: 'Neon Cloud PostgreSQL',
       timestamp: new Date().toISOString(),
       counts: {
-        users: usersRes.rowCount,
-        questions: questionsRes.rowCount,
-        exams: examsRes.rowCount,
-        attempts: attemptsRes.rowCount,
-        teams: teamsRes.rowCount
+        users: users.length,
+        questions: questions.length,
+        exams: exams.length,
+        attempts: attempts.length,
+        teams: teams.length
       },
       tables: {
-        users: usersRes.rows,
-        questions: questionsRes.rows,
-        exams: examsRes.rows,
-        attempts: attemptsRes.rows,
-        teams: teamsRes.rows
+        users,
+        questions,
+        exams,
+        attempts,
+        teams
       }
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: 'ERROR', error: err.message });
   }
 });
 
