@@ -5,7 +5,6 @@
   # 🩺 NEET CBT Platform
   ### NTA-Pattern Mock Exam & AI Proctoring Portal
 
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB?logo=react)](https://react.dev/)
   [![Vite](https://img.shields.io/badge/Bundler-Vite%205-646CFF?logo=vite)](https://vitejs.dev/)
   [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
@@ -32,8 +31,7 @@
 - [Environment Variables](#-environment-variables)
 - [API Reference](#-api-reference)
 - [Database Schema](#-database-schema)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Ownership & License](#-license--ownership)
 
 ---
 
@@ -226,9 +224,11 @@ JWT_SECRET=super_secret_neet_jwt_key_2026
 
 ---
 
-## 📄 License
+## 📄 License & Ownership
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+Copyright © 2026 Abhisek. All Rights Reserved.
+
+This repository and its codebase are private property. Unauthorized copying, distribution, or commercial use is strictly prohibited without explicit written consent.
 
 ---
 
