@@ -19,8 +19,8 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
         name: 'Dr. S. K. Roy',
         role: 'Senior Physics HOD',
         avatar: '/teacher_avatar.jpg',
-        subtitle: 'अरे राहुल! आओ बैठो। NEET 2026 Exam पास आ रहा है, तैयारी कैसी चल रही है तुम्हारी?',
-        textToSpeak: 'Are Rahul! Aao baitho. NEET 2026 Exam paas aa raha hai, tayyari kaisi chal rahi hai tumhari?',
+        subtitle: 'अरे राहुल! आओ बैठो। NEET UG Exam पास आ रहा है, तैयारी कैसी चल रही है तुम्हारी?',
+        textToSpeak: 'Are Rahul! Aao baitho. NEET UG Exam paas aa raha hai, tayyari kaisi chal rahi hai tumhari?',
         previewType: 'intro',
         previewTitle: 'Welcome to NEET CBT Platform',
         previewSubtitle: 'India\'s #1 NTA-Pattern Mock Exam & AI Portal'
@@ -112,8 +112,8 @@ export default function AiVideoExplainer({ isOpen, onClose, theme }) {
         name: 'Dr. S. K. Roy',
         role: 'Senior Physics HOD',
         avatar: '/teacher_avatar.jpg',
-        subtitle: 'Hey Rahul! Come in. NEET 2026 is approaching fast, how is your preparation going on?',
-        textToSpeak: 'Hey Rahul! Come in. NEET 2026 is approaching fast, how is your preparation going on?',
+        subtitle: 'Hey Rahul! Come in. NEET Exam is approaching fast, how is your preparation going on?',
+        textToSpeak: 'Hey Rahul! Come in. NEET Exam is approaching fast, how is your preparation going on?',
         previewType: 'intro',
         previewTitle: 'Welcome to NEET CBT Platform',
         previewSubtitle: 'India\'s #1 NTA-Pattern Mock Exam & AI Portal'

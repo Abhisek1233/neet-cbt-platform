@@ -43,7 +43,7 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
         <div className="max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950 text-amber-300 text-[10px] sm:text-[11px] font-extrabold shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>NTA-PATTERN NEET UG 2026 MOCK ENGINE & GEMINI AI</span>
+            <span>NTA-PATTERN NEET UG MOCK ENGINE & GEMINI AI</span>
           </div>
 
           <h1 className="text-xl sm:text-3xl md:text-4xl font-display font-extrabold leading-tight tracking-tight">
@@ -89,7 +89,7 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
         }`}>
           <img src="/logo.jpg" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shadow-md border-2 border-amber-400 mx-auto" />
           <div>
-            <h3 className="text-base font-extrabold">NTA NEET UG 2026</h3>
+            <h3 className="text-base font-extrabold">NTA NEET UG EXAM</h3>
             <p className="text-[10px] text-amber-400 font-mono font-bold mt-0.5">200 QUESTIONS / 720 MARKS</p>
           </div>
 

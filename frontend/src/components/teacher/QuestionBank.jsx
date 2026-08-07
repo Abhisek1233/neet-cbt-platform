@@ -335,7 +335,7 @@ export default function QuestionBank({ questions, theme }) {
               <textarea
                 required
                 rows={4}
-                placeholder='e.g. "Create 3 high-yield Assertion-Reason questions on Thermodynamics with multi-statement options for NEET 2026"'
+                placeholder='e.g. "Create 3 high-yield Assertion-Reason questions on Thermodynamics with multi-statement options for NEET UG"'
                 value={aiCustomPrompt}
                 onChange={(e) => setAiCustomPrompt(e.target.value)}
                 className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:border-indigo-500 ${

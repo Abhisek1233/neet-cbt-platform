@@ -3,9 +3,9 @@ import { Eye, ShieldAlert, Video, Users, FileText, Cpu, Activity, BarChart2 } fr
 
 export default function LiveProctoringDashboard({ storeState }) {
   const activeStudents = [
-    { id: 's1', name: 'Aarav Sharma', exam: 'NTA-NEET-2026-MOCK1', status: 'Active', face: 'Normal', mic: 'Quiet', tabSwitches: 0, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-    { id: 's2', name: 'Diya Patel', exam: 'NTA-NEET-2026-MOCK1', status: 'Active', face: 'Normal', mic: 'Whisper (42dB)', tabSwitches: 1, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80' },
-    { id: 's3', name: 'Rohan Gupta', exam: 'NTA-NEET-2026-MOCK1', status: 'Flagged ⚠️', face: 'Multi-Face Detected', mic: 'Voice Spike (62dB)', tabSwitches: 3, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80' }
+    { id: 's1', name: 'Aarav Sharma', exam: 'NTA-NEET-MOCK1', status: 'Active', face: 'Normal', mic: 'Quiet', tabSwitches: 0, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
+    { id: 's2', name: 'Diya Patel', exam: 'NTA-NEET-MOCK1', status: 'Active', face: 'Normal', mic: 'Whisper (42dB)', tabSwitches: 1, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80' },
+    { id: 's3', name: 'Rohan Gupta', exam: 'NTA-NEET-MOCK1', status: 'Flagged ⚠️', face: 'Multi-Face Detected', mic: 'Voice Spike (62dB)', tabSwitches: 3, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80' }
   ];
 
   const totalAttempts = storeState.submittedAttempts ? storeState.submittedAttempts.length : 12;

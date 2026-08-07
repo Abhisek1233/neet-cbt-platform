@@ -284,7 +284,7 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                 <img src={currentUser.avatar} alt="Candidate" className="w-10 h-10 rounded-full object-cover ring-1 ring-amber-400" />
                 <div>
                   <p className="font-bold text-slate-900">{currentUser.name}</p>
-                  <p className="text-[11px] text-slate-600">Roll: NEET-2026-9842</p>
+                  <p className="text-[11px] text-slate-600">Roll: NEET-NTA-9842</p>
                 </div>
               </div>
 

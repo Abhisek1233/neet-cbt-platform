@@ -108,7 +108,7 @@ export async function generateAiQuestion(subject, chapter, type) {
       chapter: chapter || 'Optics & Mechanics',
       difficulty: 'Hard',
       type: type || types[Math.floor(Math.random() * types.length)],
-      text: `[AI High-Yield Predicted Question] Analyze the fundamental relation in ${chapter} for NEET 2026:`,
+      text: `[AI High-Yield Predicted Question] Analyze the fundamental relation in ${chapter} for NEET UG:`,
       options: [
         `Option A: Formula holds true under standard NCERT conditions`,
         `Option B: Inverse relation applies at high temperature`,

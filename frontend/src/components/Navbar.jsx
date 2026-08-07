@@ -54,7 +54,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
                     NEET<span className="text-amber-400">CBT</span>
                   </span>
                   <span className="px-1.5 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider rounded bg-amber-400 text-slate-950 shadow-sm">
-                    NTA 2026
+                    NTA CBT
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-200 font-medium hidden md:block">National Mock Exam & AI Proctoring Portal</p>

@@ -76,9 +76,9 @@ export const mockQuestions = [
 export const mockExams = [
   {
     id: 'exam-full-01',
-    title: 'NTA Official NEET UG 2026 Grand All-India Mock Test #1',
+    title: 'NTA Official NEET UG Grand All-India Mock Test #1',
     category: 'Full-Length',
-    code: 'NTA-NEET-2026-MOCK1',
+    code: 'NTA-NEET-MOCK1',
     durationMin: 200,
     totalMarks: 720,
     questionCount: 200,
@@ -196,9 +196,9 @@ export const mockExams = [
   },
   {
     id: 'exam-ai-predicted-01',
-    title: 'NEET 2026 AI Predicted High-Yield Question Paper',
+    title: 'NEET AI Predicted High-Yield Question Paper',
     category: 'AI-Predicted',
-    code: 'AI-PREDICTED-2026',
+    code: 'AI-PREDICTED-PAPER',
     durationMin: 200,
     totalMarks: 720,
     questionCount: 200,
@@ -365,11 +365,11 @@ export const mockLeaderboard = [
 export const mockTeams = [
   {
     id: 'team-1',
-    name: 'AIIMS Champions 2026',
+    name: 'AIIMS Champions Squad',
     membersCount: 18,
     avgScore: 685,
     topRanker: 'Aarav Sharma (715)',
-    description: 'High-focus study squad aiming for top 100 AIR in NEET 2026.',
+    description: 'High-focus study squad aiming for top 100 AIR in NEET UG.',
     isMember: true,
     chat: [
       { sender: 'Aarav Sharma', text: 'Hey team! Anyone solved Physics Q2 from Mock 1?', time: '18:30' },
