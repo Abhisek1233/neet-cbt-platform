@@ -209,3 +209,17 @@ export async function registerUserBackend(userData) {
     return null;
   }
 }
+
+export async function sendFeedbackToBackend(feedbackData) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feedbackData)
+    });
+    const json = await res.json();
+    return json;
+  } catch (err) {
+    return { status: 'error', message: 'Failed to send feedback to Database server.' };
+  }
+}

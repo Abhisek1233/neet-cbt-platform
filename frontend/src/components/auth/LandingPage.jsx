@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Play, ShieldCheck, UserCheck, GraduationCap, Cpu, Award, Video } from 'lucide-react';
+import { Play, ShieldCheck, UserCheck, GraduationCap, Cpu, Award, Video, MessageSquarePlus, Mail } from 'lucide-react';
 import { store } from '../../services/store';
 import AiVideoExplainer from '../video/AiVideoExplainer';
+import FeedbackModal from './FeedbackModal';
 
 export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  
   const isDark = theme === 'dark';
+  const currentUser = store.getState().currentUser;
 
   const handleStartGuestMode = () => {
     store.setUserRole('student', true, 'Guest Aspirant');
@@ -20,6 +24,14 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
       <AiVideoExplainer
         isOpen={isVideoOpen}
         onClose={() => setIsVideoOpen(false)}
+        theme={theme}
+      />
+
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        currentUser={currentUser}
+        onOpenAuth={onOpenAuth}
         theme={theme}
       />
 
@@ -138,6 +150,37 @@ export default function LandingPage({ onOpenAuth, onStartGuest, theme }) {
           </p>
         </div>
 
+      </div>
+
+      {/* Contact & Feedback Card Banner */}
+      <div className={`p-5 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${
+        isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'
+      }`}>
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-400">
+            <MessageSquarePlus className="w-4 h-4" /> Found an issue or want a new feature?
+          </div>
+          <p className="text-xs text-slate-400 font-medium">
+            Contact us directly or submit in-app feedback. Emailing guarantees faster responses!
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <a
+            href="mailto:abhishekkumar.support@gmail.com?subject=NEET%20CBT%20Platform%20Issue%20or%20Feature%20Request"
+            className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1.5 cursor-pointer transition-all"
+          >
+            <Mail className="w-3.5 h-3.5" /> Email Creator (Recommended)
+          </a>
+          <button
+            onClick={() => setIsFeedbackOpen(true)}
+            className={`px-4 py-2.5 rounded-xl border text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all ${
+              isDark ? 'bg-slate-950 border-slate-700 text-slate-200 hover:text-white' : 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
+            }`}
+          >
+            <MessageSquarePlus className="w-3.5 h-3.5 text-cyan-400" /> Post In-App Feedback
+          </button>
+        </div>
       </div>
 
     </div>

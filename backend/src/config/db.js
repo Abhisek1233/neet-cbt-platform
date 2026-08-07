@@ -83,6 +83,15 @@ async function initPgDatabase() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`,
 
+    `CREATE TABLE IF NOT EXISTS feedback (
+      id VARCHAR(100) PRIMARY KEY,
+      user_name VARCHAR(150),
+      user_email VARCHAR(150),
+      type VARCHAR(50) DEFAULT 'General',
+      message TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+
     `ALTER TABLE exams ADD COLUMN IF NOT EXISTS allowed_student_emails TEXT;`,
     `ALTER TABLE attempts ADD COLUMN IF NOT EXISTS student_email VARCHAR(100);`,
     `ALTER TABLE exams ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`,
@@ -97,7 +106,7 @@ async function initPgDatabase() {
       console.warn('⚠️ Statement Notice:', err.message);
     }
   }
-  console.log('🐘 Live PostgreSQL Database Connected & Cleaned (0 Pre-loaded Questions)!');
+  console.log('🐘 Live PostgreSQL Database Connected & Migrated (Feedback table included)!');
 }
 
 module.exports = { pool, initPgDatabase };
