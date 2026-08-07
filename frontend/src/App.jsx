@@ -26,7 +26,7 @@ import ToastContainer, { showToast } from './components/ui/Toast';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 import { store } from './services/store';
-import { Play, ShieldCheck, Sparkles, Users, HelpCircle, Edit3, Plus } from 'lucide-react';
+import { Play, ShieldCheck, Sparkles, Users, HelpCircle, Edit3, Plus, Lock } from 'lucide-react';
 
 export default function App() {
   const [storeState, setStoreState] = useState(store.getState());
@@ -49,7 +49,36 @@ export default function App() {
     document.body.className = `theme-${theme} font-sans antialiased min-h-screen`;
   }, [storeState.theme]);
 
+  // Handle Shareable Exam Link URL parameter ?examId=...
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetExamId = urlParams.get('examId');
+    if (targetExamId) {
+      const foundExam = storeState.exams.find((e) => e.id === targetExamId);
+      if (foundExam) {
+        if (!storeState.currentUser) {
+          setIsAuthOpen(true);
+          showToast(`🔐 Private Exam "${foundExam.title}" requested! Log in with your Gmail ID to access.`, 'info', 6000);
+        } else if (!store.isEmailAllowedForExam(storeState.currentUser.email, foundExam)) {
+          showToast(`🚫 Email "${storeState.currentUser.email}" is not authorized for this private teacher exam.`, 'error', 6000);
+        } else if (storeState.activeExamPhase === 'idle') {
+          showToast(`⚡ Authorized! Opening Teacher Exam "${foundExam.title}"...`, 'success', 4000);
+          store.startPreExamCheck(foundExam);
+        }
+      }
+    }
+  }, [storeState.currentUser, storeState.exams]);
+
   const handleStartExamFlow = async (exam) => {
+    if (exam.allowedStudentEmails && exam.allowedStudentEmails.length > 0) {
+      const isAllowed = store.isEmailAllowedForExam(currentUser?.email, exam);
+      if (!isAllowed) {
+        showToast(`🔒 Private Exam! Access restricted to allowed student emails (${exam.allowedStudentEmails.slice(0, 2).join(', ')}...). Log in with your invited Gmail ID.`, 'error', 6000);
+        setIsAuthOpen(true);
+        return;
+      }
+    }
+
     setIsStartingExamId(exam.id);
     showToast(`⚡ Connecting to Google Gemini AI to generate fresh questions for ${exam.title}...`, 'info', 4000);
     await store.startPreExamCheck(exam);
@@ -175,7 +204,7 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Exam Categories Sub-Tabs (Scrollable on phones) */}
+                  {/* Exam Categories Sub-Tabs */}
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-300 shadow-sm overflow-x-auto max-w-full">
@@ -235,58 +264,73 @@ export default function App() {
 
                     {/* Exams Cards Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {filteredExams.map((exam) => (
-                        <div key={exam.id} className={`cbt-panel p-5 rounded-3xl border flex flex-col justify-between hover:shadow-md transition-all space-y-4 ${
-                          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
-                        }`}>
-                          <div>
-                            <div className="flex items-center justify-between mb-2.5">
-                              <span className="px-2.5 py-0.5 rounded-lg bg-slate-900 text-amber-300 font-mono text-[11px] font-extrabold">
-                                {exam.code}
-                              </span>
-                              <span className="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 text-[10px] font-bold border border-purple-300">
-                                {exam.proctoringLevel}
-                              </span>
+                      {filteredExams.map((exam) => {
+                        const isRestricted = exam.allowedStudentEmails && exam.allowedStudentEmails.length > 0;
+                        const isAllowed = store.isEmailAllowedForExam(currentUser?.email, exam);
+                        return (
+                          <div key={exam.id} className={`cbt-panel p-5 rounded-3xl border flex flex-col justify-between hover:shadow-md transition-all space-y-4 ${
+                            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+                          }`}>
+                            <div>
+                              <div className="flex items-center justify-between mb-2.5">
+                                <span className="px-2.5 py-0.5 rounded-lg bg-slate-900 text-amber-300 font-mono text-[11px] font-extrabold">
+                                  {exam.code}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border flex items-center gap-1 ${
+                                  isRestricted ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-purple-100 text-purple-800 border-purple-300'
+                                }`}>
+                                  {isRestricted && <Lock className="w-3 h-3 text-amber-600 shrink-0" />}
+                                  {isRestricted ? 'Private Email Restricted' : exam.proctoringLevel}
+                                </span>
+                              </div>
+
+                              <h3 className={`text-sm sm:text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.title}</h3>
+                              <p className="text-xs text-slate-500 mt-1">Created by {exam.createdBy}</p>
+
+                              <div className={`grid grid-cols-3 gap-2 mt-3 p-3 rounded-2xl border text-center text-xs font-mono ${
+                                isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                              }`}>
+                                <div>
+                                  <p className="text-[10px] text-slate-500 uppercase font-semibold">Duration</p>
+                                  <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.durationMin}m</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-slate-500 uppercase font-semibold">Marks</p>
+                                  <p className="font-bold text-blue-700">{exam.totalMarks}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-slate-500 uppercase font-semibold">Questions</p>
+                                  <p className="font-bold text-emerald-700">{exam.questionCount}</p>
+                                </div>
+                              </div>
                             </div>
 
-                            <h3 className={`text-sm sm:text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.title}</h3>
-                            <p className="text-xs text-slate-500 mt-1">Created by {exam.createdBy}</p>
-
-                            <div className={`grid grid-cols-3 gap-2 mt-3 p-3 rounded-2xl border text-center text-xs font-mono ${
-                              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
-                            }`}>
-                              <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Duration</p>
-                                <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{exam.durationMin}m</p>
-                              </div>
-                              <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Marks</p>
-                                <p className="font-bold text-blue-700">{exam.totalMarks}</p>
-                              </div>
-                              <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-semibold">Questions</p>
-                                <p className="font-bold text-emerald-700">{exam.questionCount}</p>
-                              </div>
-                            </div>
+                            <button
+                              onClick={() => handleStartExamFlow(exam)}
+                              disabled={isStartingExamId === exam.id}
+                              className={`w-full py-3 rounded-xl font-extrabold text-xs shadow flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                                isRestricted && !isAllowed
+                                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                                  : 'bg-blue-700 hover:bg-blue-800 text-white'
+                              }`}
+                            >
+                              {isStartingExamId === exam.id ? (
+                                <span className="flex items-center gap-1.5 animate-pulse">
+                                  <Sparkles className="w-4 h-4 text-amber-300" /> Generating AI Questions...
+                                </span>
+                              ) : isRestricted && !isAllowed ? (
+                                <>
+                                  <Lock className="w-4 h-4" /> Private Test (Requires Email Login)
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-4 h-4 fill-white" /> Start CBT Mock Test
+                                </>
+                              )}
+                            </button>
                           </div>
-
-                          <button
-                            onClick={() => handleStartExamFlow(exam)}
-                            disabled={isStartingExamId === exam.id}
-                            className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-xs shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
-                          >
-                            {isStartingExamId === exam.id ? (
-                              <span className="flex items-center gap-1.5 animate-pulse">
-                                <Sparkles className="w-4 h-4 text-amber-300" /> Generating AI Questions...
-                              </span>
-                            ) : (
-                              <>
-                                <Play className="w-4 h-4 fill-white" /> Start AI CBT Mock Test
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 

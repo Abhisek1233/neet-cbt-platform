@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { Plus, Search, Sparkles, X, BookOpen, CheckCircle2, Cpu } from 'lucide-react';
+import { Plus, Search, Sparkles, X, BookOpen, CheckCircle2, Cpu, FileCheck } from 'lucide-react';
 import { store } from '../../services/store';
-import { generateAiQuestion } from '../../services/api';
+import { generateAiQuestion, generateQuestionsFromTeacherPrompt } from '../../services/api';
+import CreateExamModal from './CreateExamModal';
+import { showToast } from '../ui/Toast';
 
 export default function QuestionBank({ questions, theme }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCreateExamModal, setShowCreateExamModal] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  
+  const [aiCustomPrompt, setAiCustomPrompt] = useState('');
+  const [showAiPromptModal, setShowAiPromptModal] = useState(false);
+  const [promptQuestionCount, setPromptQuestionCount] = useState(3);
 
   const [newQ, setNewQ] = useState({
     subject: 'Physics',
@@ -65,14 +72,23 @@ export default function QuestionBank({ questions, theme }) {
     });
 
     setShowAddModal(false);
+    showToast('✅ Custom Question saved to Repository!', 'success');
   };
 
-  const handleGenerateAiQuestion = async () => {
+  const handleExecuteAiPrompt = async (e) => {
+    e.preventDefault();
+    if (!aiCustomPrompt.trim()) return;
+
     setIsGeneratingAi(true);
+    showToast('⚡ Connecting to Google Gemini AI to generate custom prompt questions...', 'info', 4000);
     const sub = selectedSubject === 'All' ? 'Physics' : selectedSubject;
-    const q = await generateAiQuestion(sub, `${sub} NCERT High-Yield`, 'Assertion-Reason');
-    store.addQuestion(q);
+    const aiQuestions = await generateQuestionsFromTeacherPrompt(aiCustomPrompt, sub, promptQuestionCount);
+    
+    aiQuestions.forEach((q) => store.addQuestion(q));
     setIsGeneratingAi(false);
+    setShowAiPromptModal(false);
+    setAiCustomPrompt('');
+    showToast(`✨ Generated ${aiQuestions.length} Questions via Gemini AI Prompt!`, 'success');
   };
 
   return (
@@ -81,27 +97,33 @@ export default function QuestionBank({ questions, theme }) {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">Faculty Question Bank & Repository</h2>
+          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">Faculty Question Bank & Exam Suite</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Manage, filter, and author NTA NEET UG questions for Physics, Chemistry, Botany & Zoology.
+            Prompt Gemini AI, write/paste custom questions, and set private student exams with shareable access links.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
-            onClick={handleGenerateAiQuestion}
-            disabled={isGeneratingAi}
-            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            onClick={() => setShowAiPromptModal(true)}
+            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isGeneratingAi ? 'Generating via Gemini...' : '⚡ Generate AI Question'}</span>
+            <span>AI Custom Prompt</span>
           </button>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Question
+          </button>
+
+          <button
+            onClick={() => setShowCreateExamModal(true)}
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+          >
+            <FileCheck className="w-4 h-4 text-slate-950" /> Set Private Exam for Students
           </button>
         </div>
       </div>
@@ -214,12 +236,83 @@ export default function QuestionBank({ questions, theme }) {
         ))}
       </div>
 
-      {/* Create New Question Modal */}
+      {/* AI Prompt Generator Modal */}
+      {showAiPromptModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <form onSubmit={handleExecuteAiPrompt} className="w-full max-w-lg bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 text-white">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-base font-extrabold">Generate Questions with AI Prompt</h3>
+              </div>
+              <button type="button" onClick={() => setShowAiPromptModal(false)} className="p-1 text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-300 block mb-1">Write AI Instructions / Prompt</label>
+              <textarea
+                required
+                rows={4}
+                placeholder='e.g. "Create 3 high-yield Assertion-Reason questions on Thermodynamics with multi-statement options for NEET 2026"'
+                value={aiCustomPrompt}
+                onChange={(e) => setAiCustomPrompt(e.target.value)}
+                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1">Subject</label>
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-bold"
+                >
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Botany">Botany</option>
+                  <option value="Zoology">Zoology</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1">Questions Count</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={promptQuestionCount}
+                  onChange={(e) => setPromptQuestionCount(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono font-bold text-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+              <button type="button" onClick={() => setShowAiPromptModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white cursor-pointer">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isGeneratingAi}
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-md flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>{isGeneratingAi ? 'Generating via Gemini...' : 'Generate AI Questions'}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Manual Add Question Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <form onSubmit={handleCreateQuestion} className="w-full max-w-2xl bg-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-white">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-white">Create New NTA NEET Question</h3>
+              <h3 className="text-base font-extrabold text-white">Author / Paste New Question</h3>
               <button type="button" onClick={() => setShowAddModal(false)} className="p-1 rounded-xl text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
@@ -271,7 +364,7 @@ export default function QuestionBank({ questions, theme }) {
               <textarea
                 required
                 rows={3}
-                placeholder="Enter complete question statement..."
+                placeholder="Paste or type complete question statement..."
                 value={newQ.text}
                 onChange={(e) => setNewQ({ ...newQ, text: e.target.value })}
                 className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
@@ -333,6 +426,14 @@ export default function QuestionBank({ questions, theme }) {
           </form>
         </div>
       )}
+
+      {/* Set Exam Modal */}
+      <CreateExamModal
+        isOpen={showCreateExamModal}
+        onClose={() => setShowCreateExamModal(false)}
+        selectedQuestions={filteredQuestions.slice(0, 10)}
+        theme={theme}
+      />
 
     </div>
   );

@@ -1,5 +1,5 @@
 import { mockQuestions, mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
-import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, loginUserBackend } from './api';
+import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions } from './api';
 
 class Store {
   constructor() {
@@ -22,7 +22,7 @@ class Store {
       proctorStrictness: 'Strict AI',
 
       questions: this.loadFromStorage('questions', mockQuestions),
-      exams: mockExams,
+      exams: this.loadFromStorage('customExams', mockExams),
       colleges: mockColleges,
       leaderboard: mockLeaderboard,
       teams: this.loadFromStorage('teams', mockTeams),
@@ -38,12 +38,14 @@ class Store {
     try {
       const remoteExams = await fetchExamsFromBackend();
       if (remoteExams && remoteExams.length > 0) {
-        this.setState({ exams: remoteExams });
+        const customExams = this.loadFromStorage('customExams', []);
+        this.setState({ exams: [...customExams, ...remoteExams] });
       }
 
       const remoteQuestions = await fetchQuestionsFromBackend();
       if (remoteQuestions && remoteQuestions.length > 0) {
-        this.setState({ questions: remoteQuestions });
+        const storedQ = this.loadFromStorage('questions', []);
+        this.setState({ questions: [...storedQ, ...remoteQuestions] });
       }
     } catch (e) {}
   }
@@ -128,10 +130,68 @@ class Store {
     this.setState({ currentUser: null, activeExamPhase: 'idle', activeExam: null });
   }
 
+  createTeacherExam(examData) {
+    const newExam = {
+      id: `exam_custom_${Date.now()}`,
+      code: `EXP-${Date.now().toString().slice(-4)}`,
+      title: examData.title || 'Teacher Custom Assigned Exam',
+      category: examData.category || 'Subject-Wise',
+      durationMin: examData.durationMin || 30,
+      totalMarks: (examData.questionIds?.length || 10) * 4,
+      questionCount: examData.questionIds?.length || 10,
+      markingScheme: '+4 / -1',
+      sections: examData.sections || ['Physics'],
+      proctoringLevel: 'Strict AI',
+      createdBy: examData.createdBy || (this.state.currentUser ? this.state.currentUser.name : 'Faculty HOD'),
+      allowedStudentEmails: examData.allowedStudentEmails || [],
+      questionIds: examData.questionIds || []
+    };
+
+    const updatedExams = [newExam, ...this.state.exams];
+    const customOnly = updatedExams.filter((e) => e.id.startsWith('exam_custom_') || e.id.startsWith('exam_ai_'));
+    this.saveToStorage('customExams', customOnly);
+    this.setState({ exams: updatedExams });
+    return newExam;
+  }
+
+  createGroupSquad(groupData) {
+    const newSquad = {
+      id: `team_${Date.now()}`,
+      name: groupData.name,
+      description: groupData.description || 'Custom Squad formed by Phone & Email invites.',
+      avatar: groupData.avatar || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=100&auto=format&fit=crop&q=80',
+      type: groupData.type || 'Student Squad',
+      memberCount: (groupData.members?.length || 0) + 1,
+      targetScore: groupData.targetScore || '680+ Marks',
+      rank: 'Unranked Squad',
+      creator: this.state.currentUser ? this.state.currentUser.name : 'Founder',
+      members: groupData.members || []
+    };
+
+    const updatedTeams = [newSquad, ...this.state.teams];
+    this.saveToStorage('teams', updatedTeams);
+    this.setState({ teams: updatedTeams });
+    return newSquad;
+  }
+
+  isEmailAllowedForExam(email, exam) {
+    if (!exam || !exam.allowedStudentEmails || exam.allowedStudentEmails.length === 0) {
+      return true;
+    }
+    if (!email) return false;
+    return exam.allowedStudentEmails.some(
+      (e) => e.trim().toLowerCase() === email.trim().toLowerCase()
+    );
+  }
+
   async startPreExamCheck(exam) {
     let aiGeneratedQuestions = [];
     try {
-      aiGeneratedQuestions = await generateFullAiExamQuestions(exam);
+      if (exam.questionIds && exam.questionIds.length > 0) {
+        // Use existing questions
+      } else {
+        aiGeneratedQuestions = await generateFullAiExamQuestions(exam);
+      }
     } catch (e) {}
 
     const updatedQuestions = [...aiGeneratedQuestions, ...this.state.questions];
@@ -252,6 +312,7 @@ class Store {
       examId: exam.id,
       examTitle: exam.title,
       studentName: this.state.currentUser ? this.state.currentUser.name : 'Candidate',
+      studentEmail: this.state.currentUser ? this.state.currentUser.email : 'guest@temporary.session',
       score,
       totalPossibleScore,
       correctCount,
@@ -354,7 +415,7 @@ class Store {
   }
 
   addQuestion(newQuestion) {
-    const q = { ...newQuestion, id: `q_${Date.now()}` };
+    const q = { ...newQuestion, id: newQuestion.id || `q_${Date.now()}` };
     const updated = [q, ...this.state.questions];
     this.saveToStorage('questions', updated);
     this.setState({ questions: updated });

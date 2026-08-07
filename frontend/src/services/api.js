@@ -75,6 +75,20 @@ export async function generateAiQuestion(subject, chapter, type) {
   }
 }
 
+export async function generateQuestionsFromTeacherPrompt(promptText, subject = 'Physics', count = 3) {
+  try {
+    const generated = [];
+    for (let i = 0; i < count; i++) {
+      const q = await generateAiQuestion(subject, `Custom Prompt: ${promptText.substr(0, 30)}...`, 'Assertion-Reason');
+      q.text = `[Teacher AI Prompt: "${promptText}"] ${q.text}`;
+      generated.push(q);
+    }
+    return generated;
+  } catch (err) {
+    return [];
+  }
+}
+
 export async function generateFullAiExamQuestions(exam) {
   try {
     const subjects = exam.sections && exam.sections.length > 0 ? exam.sections : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
