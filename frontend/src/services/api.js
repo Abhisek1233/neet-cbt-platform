@@ -160,3 +160,17 @@ export async function loginUserBackend(credentials) {
     return null;
   }
 }
+
+export async function registerUserBackend(userData) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    const json = await res.json();
+    return json.data || json;
+  } catch (err) {
+    return null;
+  }
+}

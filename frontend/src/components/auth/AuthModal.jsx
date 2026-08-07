@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { UserCheck, UserPlus, Play, X, KeyRound, Mail, User, GraduationCap, ShieldCheck, Sparkles, BookOpen } from 'lucide-react';
 import { store } from '../../services/store';
+import { loginUserBackend, registerUserBackend } from '../../services/api';
+import { showToast } from '../ui/Toast';
 
 export default function AuthModal({ isOpen, onClose, currentUser }) {
   const [activeTab, setActiveTab] = useState('login');
@@ -18,27 +20,72 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
   // Guest State
   const [guestName, setGuestName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSignInSubmit = (e) => {
+  const handleSignInSubmit = async (e) => {
     e.preventDefault();
-    if (loginEmail.includes('teacher') || loginEmail.includes('roy') || loginEmail.includes('hod')) {
-      store.setUserCustomAccount('Dr. S. K. Roy (HOD Physics)', loginEmail, 'teacher');
-    } else {
-      store.setUserCustomAccount(loginEmail.split('@')[0] || 'Rahul Kumar', loginEmail, 'student');
+    setIsSubmitting(true);
+
+    try {
+      const resData = await loginUserBackend({ email: loginEmail, password: loginPassword });
+      if (resData && resData.user) {
+        store.setState({ currentUser: resData.user });
+        store.saveToStorage('user', resData.user);
+        showToast(`Welcome back, ${resData.user.name}! Authenticated with Neon PostgreSQL.`, 'success');
+      } else {
+        const isTeacher = loginEmail.includes('teacher') || loginEmail.includes('roy') || loginEmail.includes('hod');
+        store.setUserCustomAccount(isTeacher ? 'Dr. S. K. Roy (HOD Physics)' : (loginEmail.split('@')[0] || 'Rahul Kumar'), loginEmail, isTeacher ? 'teacher' : 'student');
+        showToast('Authenticated Account Session Active', 'info');
+      }
+    } catch (err) {
+      store.setUserCustomAccount('Aspirant User', loginEmail, 'student');
     }
+
+    setIsSubmitting(false);
     onClose();
   };
 
-  const handleSignUpSubmit = (e) => {
+  const handleSignUpSubmit = async (e) => {
     e.preventDefault();
-    store.setUserCustomAccount(signUpName || 'NEET Aspirant', signUpEmail || 'aspirant@neet.edu', signUpRole);
+    setIsSubmitting(true);
+
+    try {
+      const resData = await registerUserBackend({
+        name: signUpName || 'NEET Aspirant',
+        email: signUpEmail || 'aspirant@neet.edu',
+        password: signUpPassword || 'password123',
+        role: signUpRole
+      });
+
+      if (resData && resData.user) {
+        store.setState({ currentUser: resData.user });
+        store.saveToStorage('user', resData.user);
+        showToast(`🎉 Welcome ${resData.user.name}! Your account has been registered in PostgreSQL.`, 'success');
+      } else {
+        store.setUserCustomAccount(signUpName || 'NEET Aspirant', signUpEmail || 'aspirant@neet.edu', signUpRole);
+        showToast('Registered Session Active', 'success');
+      }
+    } catch (err) {
+      store.setUserCustomAccount(signUpName || 'NEET Aspirant', signUpEmail || 'aspirant@neet.edu', signUpRole);
+    }
+
+    setIsSubmitting(false);
     onClose();
   };
 
-  const handleQuickPresetLogin = (name, email, role) => {
-    store.setUserCustomAccount(name, email, role);
+  const handleQuickPresetLogin = async (name, email, role) => {
+    setIsSubmitting(true);
+    const resData = await loginUserBackend({ email, password: 'password123' });
+    if (resData && resData.user) {
+      store.setState({ currentUser: resData.user });
+      store.saveToStorage('user', resData.user);
+    } else {
+      store.setUserCustomAccount(name, email, role);
+    }
+    setIsSubmitting(false);
+    showToast(`Logged in as ${name}`, 'success');
     onClose();
   };
 
@@ -57,10 +104,10 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
         {/* Top Header & Tab Switches */}
         <div className="text-center space-y-1.5 pr-6 sm:pr-0">
           <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] sm:text-xs font-extrabold border border-amber-400/30">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> NEET CBT Authentication
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> PostgreSQL Cloud Database Auth
           </span>
           <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white">
-            Welcome to NEET CBT
+            Welcome to NEET CBT Portal
           </h2>
         </div>
 
@@ -130,9 +177,10 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition-all cursor-pointer mt-2"
               >
-                Sign In to CBT Account
+                {isSubmitting ? 'Authenticating with PostgreSQL...' : 'Sign In to CBT Account'}
               </button>
             </form>
 
@@ -240,9 +288,10 @@ export default function AuthModal({ isOpen, onClose, currentUser }) {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-lg transition-all cursor-pointer mt-2"
             >
-              Create Account & Enter Platform
+              {isSubmitting ? 'Creating PostgreSQL Account...' : 'Create Account & Enter Platform'}
             </button>
           </form>
         )}

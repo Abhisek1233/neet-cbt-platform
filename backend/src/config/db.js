@@ -11,6 +11,17 @@ const pool = new Pool({
 async function initPgDatabase() {
   try {
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        email VARCHAR(150) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role VARCHAR(50) DEFAULT 'student',
+        phone VARCHAR(50),
+        avatar TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS questions (
         id VARCHAR(100) PRIMARY KEY,
         subject VARCHAR(100),
