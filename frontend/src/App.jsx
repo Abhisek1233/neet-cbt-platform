@@ -70,6 +70,12 @@ export default function App() {
   }, [storeState.currentUser, storeState.exams]);
 
   const handleStartExamFlow = async (exam) => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+      showToast('🔒 Please Sign In or Register to start taking CBT Mock Tests.', 'info');
+      return;
+    }
+
     if (exam.allowedStudentEmails && exam.allowedStudentEmails.length > 0) {
       const isAllowed = store.isEmailAllowedForExam(currentUser?.email, exam);
       if (!isAllowed) {
@@ -400,11 +406,37 @@ export default function App() {
               )}
 
               {activeTab === 'teacher-qbank' && (
-                <QuestionBank questions={storeState.questions} storeState={storeState} theme={storeState.theme} />
+                currentUser?.role === 'teacher' ? (
+                  <QuestionBank questions={storeState.questions} storeState={storeState} theme={storeState.theme} />
+                ) : (
+                  <div className="p-8 text-center space-y-4 max-w-lg mx-auto bg-slate-900 border border-slate-800 rounded-3xl text-white my-12 shadow-2xl animate-fadeIn">
+                    <ShieldCheck className="w-12 h-12 text-amber-400 mx-auto" />
+                    <h3 className="text-xl font-extrabold">Protected Route — Faculty HOD Restricted</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      The Question Bank requires an authorized Teacher / Faculty Admin account. Log in with your faculty email address to author and manage questions.
+                    </p>
+                    <button onClick={() => setIsAuthOpen(true)} className="px-6 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md cursor-pointer">
+                      Sign In as Teacher / Faculty HOD
+                    </button>
+                  </div>
+                )
               )}
 
               {activeTab === 'teacher-proctoring' && (
-                <LiveProctoringDashboard storeState={storeState} theme={storeState.theme} />
+                currentUser?.role === 'teacher' ? (
+                  <LiveProctoringDashboard storeState={storeState} theme={storeState.theme} />
+                ) : (
+                  <div className="p-8 text-center space-y-4 max-w-lg mx-auto bg-slate-900 border border-slate-800 rounded-3xl text-white my-12 shadow-2xl animate-fadeIn">
+                    <ShieldCheck className="w-12 h-12 text-amber-400 mx-auto" />
+                    <h3 className="text-xl font-extrabold">Protected Route — Faculty HOD Restricted</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      The Live AI Proctoring Control Room requires an authorized Teacher / Faculty Admin account. Log in with your faculty email address to view live candidate webcams and telemetry.
+                    </p>
+                    <button onClick={() => setIsAuthOpen(true)} className="px-6 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md cursor-pointer">
+                      Sign In as Teacher / Faculty HOD
+                    </button>
+                  </div>
+                )
               )}
             </>
           )}
