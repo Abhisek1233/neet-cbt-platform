@@ -1,5 +1,5 @@
 import { mockQuestions, mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
-import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions } from './api';
+import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend } from './api';
 
 class Store {
   constructor() {
@@ -39,13 +39,20 @@ class Store {
       const remoteExams = await fetchExamsFromBackend();
       if (remoteExams && remoteExams.length > 0) {
         const customExams = this.loadFromStorage('customExams', []);
-        this.setState({ exams: [...customExams, ...remoteExams] });
+        const merged = [...customExams, ...remoteExams];
+        // Remove duplicates by id
+        const uniqueMap = new Map();
+        merged.forEach((e) => uniqueMap.set(e.id, e));
+        this.setState({ exams: Array.from(uniqueMap.values()) });
       }
 
       const remoteQuestions = await fetchQuestionsFromBackend();
       if (remoteQuestions && remoteQuestions.length > 0) {
         const storedQ = this.loadFromStorage('questions', []);
-        this.setState({ questions: [...storedQ, ...remoteQuestions] });
+        const mergedQ = [...storedQ, ...remoteQuestions];
+        const uniqueQMap = new Map();
+        mergedQ.forEach((q) => uniqueQMap.set(q.id, q));
+        this.setState({ questions: Array.from(uniqueQMap.values()) });
       }
     } catch (e) {}
   }
@@ -146,6 +153,9 @@ class Store {
       allowedStudentEmails: examData.allowedStudentEmails || [],
       questionIds: examData.questionIds || []
     };
+
+    // Save to real-time Neon PostgreSQL database
+    createExamInBackend(newExam);
 
     const updatedExams = [newExam, ...this.state.exams];
     const customOnly = updatedExams.filter((e) => e.id.startsWith('exam_custom_') || e.id.startsWith('exam_ai_'));

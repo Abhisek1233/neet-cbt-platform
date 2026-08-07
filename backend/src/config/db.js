@@ -38,13 +38,16 @@ async function initPgDatabase() {
         sections TEXT,
         proctoring_level VARCHAR(50),
         created_by VARCHAR(100),
-        question_ids TEXT
+        allowed_student_emails TEXT,
+        question_ids TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS attempts (
         id VARCHAR(100) PRIMARY KEY,
         exam_id VARCHAR(100),
         student_name VARCHAR(100),
+        student_email VARCHAR(100),
         score INT,
         total_possible_score INT,
         correct_count INT,
@@ -54,6 +57,20 @@ async function initPgDatabase() {
         submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         responses TEXT,
         proctor_logs TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS teams (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(150),
+        description TEXT,
+        avatar VARCHAR(255),
+        type VARCHAR(100),
+        member_count INT,
+        target_score VARCHAR(100),
+        rank VARCHAR(100),
+        creator VARCHAR(100),
+        members TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log('🐘 Live PostgreSQL Database Connected & Tables Initialized!');

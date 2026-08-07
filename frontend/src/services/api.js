@@ -24,6 +24,19 @@ export async function fetchExamsFromBackend(category = 'All') {
   }
 }
 
+export async function createExamInBackend(examData) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/exams`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(examData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { success: false };
+  }
+}
+
 export async function fetchQuestionsFromBackend() {
   try {
     const controller = new AbortController();
