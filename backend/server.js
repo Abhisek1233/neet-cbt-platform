@@ -87,16 +87,16 @@ app.get('/api/admin/db-overview', async (req, res) => {
       const result = await pool.query(queryText);
       return result.rows || [];
     } catch (e) {
-      return [{ notice: `Table initializing or notice: ${e.message}` }];
+      return [{ notice: `Table query note: ${e.message}` }];
     }
   };
 
   try {
-    const users = await safeQuery('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 50');
-    const questions = await safeQuery('SELECT id, subject, chapter, difficulty, text, created_at FROM questions ORDER BY created_at DESC LIMIT 50');
-    const exams = await safeQuery('SELECT id, title, category, code, duration_min, created_by, allowed_student_emails, created_at FROM exams ORDER BY created_at DESC LIMIT 50');
-    const attempts = await safeQuery('SELECT id, exam_id, student_name, student_email, score, total_possible_score, accuracy, submitted_at FROM attempts ORDER BY submitted_at DESC LIMIT 50');
-    const teams = await safeQuery('SELECT id, name, description, member_count, creator, created_at FROM teams ORDER BY created_at DESC LIMIT 50');
+    const users = await safeQuery('SELECT * FROM users LIMIT 50');
+    const questions = await safeQuery('SELECT * FROM questions LIMIT 50');
+    const exams = await safeQuery('SELECT * FROM exams LIMIT 50');
+    const attempts = await safeQuery('SELECT * FROM attempts LIMIT 50');
+    const teams = await safeQuery('SELECT * FROM teams LIMIT 50');
 
     res.json({
       database: 'Neon Cloud PostgreSQL',
