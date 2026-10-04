@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, Bookmark, RotateCcw, ArrowRight, ArrowLeft, Send, User, Menu, X, CheckCircle2, ZoomIn, ZoomOut, Type, Layers } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Clock, Bookmark, RotateCcw, ArrowRight, ArrowLeft, Send, User, Menu, X, CheckCircle2, ZoomIn, ZoomOut, Type, Layers, Keyboard, HelpCircle } from 'lucide-react';
 import { store } from '../../services/store';
+import { showToast } from '../ui/Toast';
 import MathText from '../ui/MathText';
 
 export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
   const [timeRemainingSec, setTimeRemainingSec] = useState((exam.durationMin || 200) * 60);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showMobilePalette, setShowMobilePalette] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [fontSizeMode, setFontSizeMode] = useState('normal'); // 'normal' | 'large' | 'xl'
   const [paletteFilter, setPaletteFilter] = useState('all'); // 'all' | 'A' | 'B'
+
 
   const questions = store.getExamQuestions();
   const currentIndex = storeState.currentQuestionIndex || 0;
@@ -89,10 +92,38 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
 
   const statusCounts = getStatusCounts();
 
+  // Compute Section B attempted count for a given subject
+  const getSubjectSecBAttemptCount = (subject) => {
+    if (!subject) return 0;
+    const subQuestions = questions.filter(
+      (q) => q.subject && q.subject.toLowerCase() === subject.toLowerCase()
+    );
+    const secBQuestions = subQuestions.slice(35, 50);
+    return secBQuestions.filter((q) => {
+      const resp = storeState.examResponses[q.id];
+      return resp && resp.selectedOption !== null && resp.selectedOption !== undefined;
+    }).length;
+  };
+
   const handleSelectOption = (idx) => {
-    if (currentQuestion) {
-      store.saveQuestionResponse(currentQuestion.id, idx);
+    if (!currentQuestion) return;
+
+    // Check NTA Section B 10/10 Attempt limit
+    if (isSectionB) {
+      const isAlreadyAnswered = selectedOption !== null && selectedOption !== undefined;
+      const currentSecBCount = getSubjectSecBAttemptCount(currentQuestion.subject);
+
+      if (!isAlreadyAnswered && currentSecBCount >= 10) {
+        showToast(
+          `⚠️ NTA Rule: You have already attempted 10 questions in Section B of ${currentQuestion.subject}. Only 10 attempts are evaluated. Clear an existing attempt to answer this question.`,
+          'warning',
+          5000
+        );
+        return;
+      }
     }
+
+    store.saveQuestionResponse(currentQuestion.id, idx);
   };
 
   const handleSaveAndNext = () => {
@@ -129,6 +160,55 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
       store.clearQuestionResponse(currentQuestion.id);
     }
   };
+
+  // Keyboard navigation shortcuts (A/B/C/D, Enter, R, Backspace, Arrow keys, ?)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || showSubmitModal) return;
+
+      const key = e.key.toLowerCase();
+
+      if (key === 'a' || key === '1') {
+        e.preventDefault();
+        handleSelectOption(0);
+      } else if (key === 'b' || key === '2') {
+        e.preventDefault();
+        handleSelectOption(1);
+      } else if (key === 'c' || key === '3') {
+        e.preventDefault();
+        handleSelectOption(2);
+      } else if (key === 'd' || key === '4') {
+        e.preventDefault();
+        handleSelectOption(3);
+      } else if (key === 'enter') {
+        e.preventDefault();
+        handleSaveAndNext();
+      } else if (key === 'arrowright') {
+        e.preventDefault();
+        if (currentIndex < questions.length - 1) {
+          store.setCurrentQuestionIndex(currentIndex + 1);
+        }
+      } else if (key === 'arrowleft') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          store.setCurrentQuestionIndex(currentIndex - 1);
+        }
+      } else if (key === 'r') {
+        e.preventDefault();
+        handleMarkForReviewAndNext();
+      } else if (key === 'backspace' || key === 'delete') {
+        e.preventDefault();
+        handleClearResponse();
+      } else if (key === '?') {
+        e.preventDefault();
+        setShowShortcutsModal((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, currentQuestion, selectedOption, showSubmitModal, questions.length]);
+
 
   const handleSectionTabClick = (sec) => {
     const firstInSection = questions.findIndex(
@@ -196,12 +276,23 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
             <Menu className="w-3.5 h-3.5" /> Palette
           </button>
 
+          <button
+            type="button"
+            onClick={() => setShowShortcutsModal(true)}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-amber-300 text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Keyboard Shortcuts (?)"
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+            <span>Shortcuts</span>
+          </button>
+
           <div className="hidden md:flex items-center gap-2 bg-slate-900/60 px-2.5 py-1 rounded border border-slate-700">
             <User className="w-3.5 h-3.5 text-amber-400" />
             <div className="text-left text-xs">
               <p className="font-bold text-white leading-tight">{currentUser.name}</p>
             </div>
           </div>
+
 
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded font-mono font-bold text-xs sm:text-sm border ${
             timeRemainingSec < 600 ? 'bg-red-600 text-white border-red-400 animate-pulse' : 'bg-amber-400 text-slate-950 border-amber-300'
@@ -255,9 +346,15 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                   Q. {currentIndex + 1} of {questions.length}
                 </span>
                 <span className={`px-2 py-0.5 rounded text-[11px] font-extrabold ${
-                  isSectionB ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-blue-100 text-blue-900 border border-blue-300'
+                  isSectionB
+                    ? getSubjectSecBAttemptCount(currentQuestion?.subject) >= 10
+                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                      : 'bg-purple-100 text-purple-900 border border-purple-300'
+                    : 'bg-blue-100 text-blue-900 border border-blue-300'
                 }`}>
-                  {isSectionB ? 'Section B (Attempt Any 10)' : 'Section A (Mandatory 1-35)'}
+                  {isSectionB
+                    ? `Section B (Attempted: ${getSubjectSecBAttemptCount(currentQuestion?.subject)}/10)`
+                    : 'Section A (Mandatory 1-35)'}
                 </span>
                 <span className="text-[11px] font-bold font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
                   +4 / -1
@@ -676,6 +773,58 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
         </div>
       )}
 
+      {/* Keyboard Shortcuts Help Modal */}
+      {showShortcutsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <Keyboard className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-sm font-bold text-slate-900">CBT Keyboard Shortcuts</h3>
+              </div>
+              <button onClick={() => setShowShortcutsModal(false)} className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                <span className="text-slate-600">Select Option A, B, C, D</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">A, B, C, D / 1, 2, 3, 4</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                <span className="text-slate-600">Save & Next Question</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">Enter</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                <span className="text-slate-600">Mark for Review & Next</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">R</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                <span className="text-slate-600">Clear Current Selection</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">Backspace</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                <span className="text-slate-600">Previous / Next Question</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">← / →</span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span className="text-slate-600">Toggle Shortcuts Menu</span>
+                <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">?</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowShortcutsModal(false)}
+              className="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs cursor-pointer hover:bg-slate-800 transition-colors"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+

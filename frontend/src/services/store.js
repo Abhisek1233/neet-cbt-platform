@@ -297,6 +297,53 @@ class Store {
     });
   }
 
+  startPracticeDrill(subject, chapter, count = 5) {
+    const drillQuestions = generateBatchExamQuestions({
+      category: 'Topic-Wise',
+      subjects: [subject],
+      count,
+      difficulty: 'Real Mix',
+      questionType: 'All Types',
+      chapter
+    });
+
+    const allKnownMap = new Map();
+    [...this.state.questions, ...drillQuestions].forEach((q) => {
+      if (q && q.id) allKnownMap.set(q.id, q);
+    });
+
+    const drillExam = {
+      id: `exam_drill_${Date.now()}`,
+      code: `DRILL-${Date.now().toString().slice(-4)}`,
+      title: `⚡ AI Remedial Drill: ${chapter} (${subject})`,
+      category: 'Topic-Wise',
+      targetChapter: chapter,
+      durationMin: Math.max(5, count * 2),
+      totalMarks: count * 4,
+      questionCount: count,
+      markingScheme: '+4 / -1',
+      sections: [subject],
+      proctoringLevel: 'Standard',
+      createdBy: 'Gemini AI Diagnostic Engine',
+      questionIds: drillQuestions.map((q) => q.id)
+    };
+
+    const firstQId = drillExam.questionIds[0] || 'q1';
+
+    this.setState({
+      activeExam: drillExam,
+      questions: Array.from(allKnownMap.values()),
+      activeExamPhase: 'taking',
+      examResponses: {},
+      examAnswersVisited: { [firstQId]: true },
+      examTimeRemainingSec: drillExam.durationMin * 60,
+      currentQuestionIndex: 0,
+      activeSection: subject,
+      proctorLogs: []
+    });
+    this.logProctorEvent('Remedial Drill Started', 'Info', `Targeted revision drill launched for ${chapter}.`);
+  }
+
   startActiveExam() {
     this.setState({ activeExamPhase: 'taking' });
     this.logProctorEvent('Exam Session Started', 'Info', 'Student initiated CBT session.');

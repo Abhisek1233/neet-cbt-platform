@@ -85,6 +85,14 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Silent background warm-up ping for Render backend server
+  useEffect(() => {
+    try {
+      fetch('https://neet-cbt-platform-9qh1.onrender.com/api/health', { mode: 'cors' }).catch(() => {});
+    } catch (e) {}
+  }, []);
+
+
   useEffect(() => {
     const unsubscribe = store.subscribe((newState) => {
       setStoreState(newState);

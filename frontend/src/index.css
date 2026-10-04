@@ -127,3 +127,58 @@ body.theme-dark .cbt-panel {
   background: #94a3b8;
   border-radius: 9999px;
 }
+
+/* ==========================================================================
+   OFFICIAL NTA NEET UG PRINTABLE SCORECARD & PDF STYLES
+   ========================================================================== */
+@media print {
+  /* Hide interactive non-printable controls */
+  .no-print,
+  nav,
+  footer,
+  button,
+  input,
+  .toast-container,
+  .alert-banner {
+    display: none !important;
+  }
+
+  /* Reset body and canvas for clean white paper/PDF output */
+  html, body, #root, .min-h-screen {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Expand panels to full printable width with crisp borders */
+  .glass-panel,
+  .cbt-panel,
+  .scorecard-printable {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+  }
+
+  /* Force exact color reproduction for badges and marks */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent awkward page cuts in middle of question or table */
+  .print-avoid-break,
+  tr,
+  .solution-item-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Printable Header Banner */
+  .print-header-visible {
+    display: block !important;
+  }
+}
