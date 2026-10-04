@@ -1,11 +1,11 @@
-import { mockExams, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
+import { mockExams, mockQuestions, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
 import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend, deleteQuestionFromBackend, clearAllQuestionsInBackend } from './api';
 
 class Store {
   constructor() {
     this.listeners = new Set();
 
-    // Clear stale pre-loaded questions from local storage on fresh start
+    // Clear stale pre-loaded questions from local storage on fresh start if legacy format
     try {
       const storedRaw = localStorage.getItem('neet_cbt_questions');
       if (storedRaw) {
@@ -32,7 +32,7 @@ class Store {
       proctorAlertActive: null,
       proctorStrictness: 'Strict AI',
 
-      questions: this.loadFromStorage('questions', []),
+      questions: this.loadFromStorage('questions', mockQuestions),
       exams: this.loadFromStorage('customExams', mockExams),
       colleges: mockColleges,
       leaderboard: mockLeaderboard,
@@ -57,16 +57,19 @@ class Store {
       }
 
       const remoteQuestions = await fetchQuestionsFromBackend();
-      if (remoteQuestions && remoteQuestions.length > 0) {
-        const storedQ = this.loadFromStorage('questions', []);
-        const mergedQ = [...remoteQuestions, ...storedQ];
-        const uniqueQMap = new Map();
-        mergedQ.forEach((q) => uniqueQMap.set(q.id, q));
-        this.setState({ questions: Array.from(uniqueQMap.values()) });
-      } else {
-        this.setState({ questions: this.loadFromStorage('questions', []) });
-      }
-    } catch (e) {}
+      const storedQ = this.loadFromStorage('questions', mockQuestions);
+      const mergedQ = (remoteQuestions && remoteQuestions.length > 0)
+        ? [...remoteQuestions, ...storedQ, ...mockQuestions]
+        : [...storedQ, ...mockQuestions];
+
+      const uniqueQMap = new Map();
+      mergedQ.forEach((q) => {
+        if (q && q.id) uniqueQMap.set(q.id, q);
+      });
+      this.setState({ questions: Array.from(uniqueQMap.values()) });
+    } catch (e) {
+      console.warn('Backend sync failed, using mockQuestions:', e);
+    }
   }
 
   loadFromStorage(key, defaultValue) {
@@ -99,8 +102,8 @@ class Store {
     return this.state;
   }
 
-  setState(partial) {
-    this.state = { ...this.state, ...partial };
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
     this.notify();
   }
 
@@ -200,27 +203,32 @@ class Store {
       return true;
     }
     if (!email) return false;
-    return exam.allowedStudentEmails.some(
-      (e) => e.trim().toLowerCase() === email.trim().toLowerCase()
-    );
+    return exam.allowedStudentEmails.some((allowed) => allowed.toLowerCase().trim() === email.toLowerCase().trim());
   }
 
   async startPreExamCheck(exam) {
     let aiGeneratedQuestions = [];
     try {
-      if (exam.questionIds && exam.questionIds.length > 0) {
-        // Use existing questions
-      } else {
+      if (!exam.questionIds || exam.questionIds.length === 0) {
         aiGeneratedQuestions = await generateFullAiExamQuestions(exam);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('AI Question Generation error:', e);
+    }
 
-    const updatedQuestions = [...aiGeneratedQuestions, ...this.state.questions];
+    const allKnownMap = new Map();
+    [...aiGeneratedQuestions, ...this.state.questions, ...mockQuestions].forEach((q) => {
+      if (q && q.id) allKnownMap.set(q.id, q);
+    });
+
+    const updatedQuestions = Array.from(allKnownMap.values());
     const newQuestionIds = aiGeneratedQuestions.map((q) => q.id);
 
     const updatedExam = {
       ...exam,
-      questionIds: newQuestionIds.length > 0 ? [...newQuestionIds, ...(exam.questionIds || [])] : (exam.questionIds || ['p1', 'p2', 'c1', 'b1', 'z1'])
+      questionIds: newQuestionIds.length > 0
+        ? [...newQuestionIds, ...(exam.questionIds || [])]
+        : (exam.questionIds && exam.questionIds.length > 0 ? exam.questionIds : ['p1', 'p2', 'c1', 'b1', 'z1'])
     };
 
     const firstQId = updatedExam.questionIds[0] || 'p1';
@@ -231,7 +239,7 @@ class Store {
       activeExamPhase: 'pre-check',
       examResponses: {},
       examAnswersVisited: { [firstQId]: true },
-      examTimeRemainingSec: exam.durationMin * 60,
+      examTimeRemainingSec: (exam.durationMin || 200) * 60,
       currentQuestionIndex: 0,
       activeSection: exam.sections?.[0] || 'Physics',
       proctorLogs: []
@@ -292,10 +300,24 @@ class Store {
   }
 
   getExamQuestions() {
-    if (!this.state.activeExam) return [];
-    return this.state.activeExam.questionIds
-      .map((id) => this.state.questions.find((q) => q.id === id))
-      .filter(Boolean);
+    if (!this.state.activeExam) return mockQuestions;
+
+    const allKnownMap = new Map();
+    [...this.state.questions, ...mockQuestions].forEach((q) => {
+      if (q && q.id) allKnownMap.set(q.id, q);
+    });
+
+    const ids = (this.state.activeExam.questionIds && this.state.activeExam.questionIds.length > 0)
+      ? this.state.activeExam.questionIds
+      : ['p1', 'p2', 'c1', 'b1', 'z1'];
+
+    let foundQuestions = ids.map((id) => allKnownMap.get(id)).filter(Boolean);
+
+    if (foundQuestions.length === 0) {
+      foundQuestions = mockQuestions;
+    }
+
+    return foundQuestions;
   }
 
   async submitExam() {
@@ -349,7 +371,6 @@ class Store {
 
     const updatedAttempts = [attemptResult, ...this.state.submittedAttempts];
     this.saveToStorage('submittedAttempts', updatedAttempts);
-
     this.setState({
       activeExamPhase: 'scorecard',
       submittedAttempts: updatedAttempts
@@ -361,7 +382,10 @@ class Store {
       activeExam: null,
       activeExamPhase: 'idle',
       examResponses: {},
-      proctorLogs: []
+      examAnswersVisited: {},
+      currentQuestionIndex: 0,
+      proctorLogs: [],
+      proctorAlertActive: null
     });
   }
 
@@ -452,8 +476,8 @@ class Store {
 
   clearAllQuestions() {
     clearAllQuestionsInBackend();
-    this.saveToStorage('questions', []);
-    this.setState({ questions: [] });
+    this.saveToStorage('questions', mockQuestions);
+    this.setState({ questions: mockQuestions });
   }
 }
 

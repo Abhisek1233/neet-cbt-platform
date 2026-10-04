@@ -121,7 +121,18 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
   };
 
   if (!currentQuestion) {
-    return <div className="p-8 text-center text-slate-800 font-bold">Loading NTA CBT Engine...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-900 text-white space-y-4">
+        <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm font-bold text-amber-300">Loading NTA CBT Engine & NCERT Questions...</p>
+        <button
+          onClick={onExit}
+          className="px-5 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 hover:text-white border border-slate-700 cursor-pointer shadow-md"
+        >
+          Return to Exam Portal
+        </button>
+      </div>
+    );
   }
 
   return (
