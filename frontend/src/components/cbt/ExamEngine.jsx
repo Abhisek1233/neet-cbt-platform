@@ -276,13 +276,24 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
               </button>
             </div>
 
-            <button
-              onClick={handleSaveAndNext}
-              className="w-full sm:w-auto px-6 py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <span>Save & Next</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Mobile Palette Jump Button */}
+              <button
+                type="button"
+                onClick={() => setShowMobilePalette(true)}
+                className="lg:hidden flex-1 sm:flex-none px-3.5 py-2.5 rounded bg-slate-900 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-colors cursor-pointer"
+              >
+                <Menu className="w-4 h-4" /> Palette ({currentIndex + 1}/{questions.length})
+              </button>
+
+              <button
+                onClick={handleSaveAndNext}
+                className="flex-1 sm:flex-none px-6 py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <span>Save & Next</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
         </main>
@@ -290,7 +301,7 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
         {/* Right Desktop NTA Question Palette Panel */}
         <aside className="hidden lg:flex lg:col-span-4 bg-white p-4 border-l border-slate-300 flex-col justify-between">
           <div>
-            <div className="bg-slate-100 p-3 rounded border border-slate-300 mb-4 space-y-2 text-xs">
+            <div className="bg-slate-100 p-3 rounded-xl border border-slate-300 mb-4 space-y-2 text-xs">
               <div className="flex items-center gap-3 pb-2 border-b border-slate-300">
                 <img src={currentUser.avatar} alt="Candidate" className="w-10 h-10 rounded-full object-cover ring-1 ring-amber-400" />
                 <div>
@@ -301,31 +312,34 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
 
               <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-answered">{statusCounts.answered}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-answered shadow-sm">{statusCounts.answered}</span>
                   <span className="text-slate-700 font-medium">Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-answered">{statusCounts.notAnswered}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-answered shadow-sm">{statusCounts.notAnswered}</span>
                   <span className="text-slate-700 font-medium">Not Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-visited">{statusCounts.notVisited}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-visited shadow-sm">{statusCounts.notVisited}</span>
                   <span className="text-slate-700 font-medium">Not Visited</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-marked">{statusCounts.marked}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-marked shadow-sm">{statusCounts.marked}</span>
                   <span className="text-slate-700 font-medium">Marked Review</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2.5">
                 <span className="text-xs font-bold text-slate-800">Question Palette:</span>
-                <span className="text-[11px] font-mono font-bold text-slate-600">{questions.length} Questions</span>
+                <span className="text-[11px] font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                  {questions.length} Questions
+                </span>
               </div>
 
-              <div className="grid grid-cols-5 gap-2 max-h-[300px] overflow-y-auto pr-1">
+              {/* Responsive Auto-Fill Grid - Uniform on all screen widths */}
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-200 max-h-[calc(100vh-360px)] min-h-[140px] overflow-y-auto">
                 {questions.map((q, idx) => {
                   const statusClass = getPaletteStatusClass(q);
                   const isCurrent = idx === currentIndex;
@@ -333,9 +347,10 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                     <button
                       key={q.id}
                       onClick={() => store.setCurrentQuestionIndex(idx)}
-                      className={`w-9 h-9 font-mono font-bold text-xs flex items-center justify-center transition-transform hover:scale-105 cursor-pointer ${statusClass} ${
-                        isCurrent ? 'ring-2 ring-slate-900 ring-offset-2 scale-105' : ''
+                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm relative ${statusClass} ${
+                        isCurrent ? 'ring-2 ring-blue-600 ring-offset-2 scale-105 font-extrabold z-10' : ''
                       }`}
+                      title={`Question ${idx + 1} (${q.subject})`}
                     >
                       {idx + 1}
                     </button>
@@ -360,16 +375,42 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
       {/* Mobile Question Palette Drawer Modal */}
       {showMobilePalette && (
         <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-sm animate-fadeIn lg:hidden">
-          <div className="w-full max-w-xs bg-white h-full p-4 flex flex-col justify-between overflow-y-auto">
-            <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
+          <div className="w-full max-w-sm bg-white h-full p-4 flex flex-col justify-between overflow-y-auto">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                 <h3 className="text-sm font-bold text-slate-900">Question Palette</h3>
-                <button onClick={() => setShowMobilePalette(false)} className="p-1 text-slate-500 hover:text-slate-900">
+                <button onClick={() => setShowMobilePalette(false)} className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto pr-1 mb-4">
+              {/* Status summary in mobile drawer */}
+              <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-4 flex items-center justify-center font-bold text-[9px] q-btn-answered">{statusCounts.answered}</span>
+                  <span className="text-slate-700 font-medium">Answered</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-4 flex items-center justify-center font-bold text-[9px] q-btn-not-answered">{statusCounts.notAnswered}</span>
+                  <span className="text-slate-700 font-medium">Not Answered</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-4 flex items-center justify-center font-bold text-[9px] q-btn-not-visited">{statusCounts.notVisited}</span>
+                  <span className="text-slate-700 font-medium">Not Visited</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-4 flex items-center justify-center font-bold text-[9px] q-btn-marked">{statusCounts.marked}</span>
+                  <span className="text-slate-700 font-medium">Review</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs font-bold text-slate-800">Select Question:</span>
+                <span className="text-[11px] font-mono font-bold text-slate-600">{questions.length} Questions</span>
+              </div>
+
+              {/* Responsive Auto-Fill Grid in Mobile Drawer */}
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5 p-2 bg-slate-50 rounded-xl border border-slate-200 max-h-[50vh] overflow-y-auto">
                 {questions.map((q, idx) => {
                   const statusClass = getPaletteStatusClass(q);
                   const isCurrent = idx === currentIndex;
@@ -380,8 +421,8 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                         store.setCurrentQuestionIndex(idx);
                         setShowMobilePalette(false);
                       }}
-                      className={`w-9 h-9 font-mono font-bold text-xs flex items-center justify-center ${statusClass} ${
-                        isCurrent ? 'ring-2 ring-slate-900 ring-offset-1' : ''
+                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm relative ${statusClass} ${
+                        isCurrent ? 'ring-2 ring-blue-600 ring-offset-2 scale-105 font-extrabold z-10' : ''
                       }`}
                     >
                       {idx + 1}
@@ -391,15 +432,17 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setShowMobilePalette(false);
-                setShowSubmitModal(true);
-              }}
-              className="w-full py-3 rounded bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5"
-            >
-              <Send className="w-4 h-4" /> Submit Test
-            </button>
+            <div className="pt-3 border-t border-slate-200">
+              <button
+                onClick={() => {
+                  setShowMobilePalette(false);
+                  setShowSubmitModal(true);
+                }}
+                className="w-full py-3 rounded bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Send className="w-4 h-4" /> Submit Test
+              </button>
+            </div>
           </div>
         </div>
       )}
