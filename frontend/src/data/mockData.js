@@ -30,18 +30,74 @@ export const mockQuestions = [
     probabilityWeight: '96% Likely in NEET'
   },
   {
+    id: 'p3',
+    subject: 'Physics',
+    chapter: 'Thermodynamics',
+    difficulty: 'Medium',
+    type: 'Numerical Problem',
+    text: 'A Carnot engine has an efficiency of 50% when its sink temperature is at 27°C. To increase its efficiency to 60%, the temperature of the source must be increased by:',
+    options: ['60 K', '150 K', '300 K', '75 K'],
+    correctOption: 1,
+    explanation: '0.5 = 1 - 300/T1 => T1 = 600 K. For 60%: 0.6 = 1 - 300/T1\' => T1\' = 750 K. Increase = 150 K.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '95% Likely in NEET'
+  },
+  {
+    id: 'p4',
+    subject: 'Physics',
+    chapter: 'Wave Optics',
+    difficulty: 'Hard',
+    type: 'Conceptual MCQ',
+    text: 'In Young\'s double slit experiment, if the distance between slits is halved and distance between screen and slits is doubled, the fringe width will be:',
+    options: ['Halved', 'Unchanged', 'Doubled', 'Quadrupled'],
+    correctOption: 3,
+    explanation: 'β = λD/d. If D -> 2D and d -> d/2, β\' = 4β.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '97% Likely in NEET'
+  },
+  {
     id: 'c1',
     subject: 'Chemistry',
     chapter: 'Organic Chemistry - Hydrocarbons',
     difficulty: 'Medium',
     type: 'Statement I & II',
     text: 'Which of the following compounds undergoes electrophilic aromatic substitution most rapidly?',
-    options: ['Benzene', 'Nitrobenzene', 'Toluene', 'Chlorobenzene'],
-    correctOption: 2,
-    explanation: 'Toluene contains a methyl (-CH3) group which activates the benzene ring.',
+    options: ['Benzene', 'Nitrobenzene', 'Toluene', 'Phenol'],
+    correctOption: 3,
+    explanation: 'Phenol contains a strong activating -OH group which increases electron density most strongly.',
     imageUrl: null,
     isAiPredicted: true,
     probabilityWeight: '98% Likely in NEET'
+  },
+  {
+    id: 'c2',
+    subject: 'Chemistry',
+    chapter: 'Chemical Kinetics',
+    difficulty: 'Hard',
+    type: 'Numerical Problem',
+    text: 'For a first-order chemical reaction, the time required for 99% completion is related to the half-life period (t1/2) by the relation:',
+    options: ['t(99%) = 2 * t1/2', 't(99%) ≈ 6.6 * t1/2', 't(99%) = 10 * t1/2', 't(99%) = 4.3 * t1/2'],
+    correctOption: 1,
+    explanation: 't(99%) = (2.303/k)*log(100) = 4.606/k. Since t1/2 = 0.693/k, 4.606 / 0.693 ≈ 6.64.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '96% Likely in NEET'
+  },
+  {
+    id: 'c3',
+    subject: 'Chemistry',
+    chapter: 'Electrochemistry',
+    difficulty: 'Medium',
+    type: 'Conceptual MCQ',
+    text: 'The standard reduction potentials for Al³⁺/Al, Fe²⁺/Fe, and Cu²⁺/Cu are -1.66 V, -0.44 V, and +0.34 V. The correct decreasing order of reducing power is:',
+    options: ['Cu > Fe > Al', 'Al > Fe > Cu', 'Fe > Al > Cu', 'Al > Cu > Fe'],
+    correctOption: 1,
+    explanation: 'More negative reduction potential means stronger reducing agent: Al > Fe > Cu.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '95% Likely in NEET'
   },
   {
     id: 'b1',
@@ -49,13 +105,41 @@ export const mockQuestions = [
     chapter: 'Genetics & Evolution',
     difficulty: 'Hard',
     type: 'Assertion-Reason',
-    text: 'In Mendel\'s dihybrid cross between round yellow (RRYY) and wrinkled green (rryy) seeds, what is the proportion of homozygous plants for both traits in F2 generation?',
-    options: ['4/16', '2/16', '1/16', '9/16'],
+    text: 'In Mendel\'s dihybrid cross between round yellow (RRYY) and wrinkled green (rryy) seeds, what proportion of F2 progeny are recombinant phenotypes?',
+    options: ['37.5% (6/16)', '50% (8/16)', '25% (4/16)', '56.25% (9/16)'],
     correctOption: 0,
-    explanation: 'Homozygous for both traits: RRYY (1), RRyy (1), rrYY (1), rryy (1). Total = 4/16.',
+    explanation: 'Recombinant phenotypes are round green (3) and wrinkled yellow (3) = 6/16 = 37.5%.',
     imageUrl: null,
     isAiPredicted: true,
     probabilityWeight: '99% Likely in NEET'
+  },
+  {
+    id: 'b2',
+    subject: 'Botany',
+    chapter: 'Photosynthesis in Higher Plants',
+    difficulty: 'Medium',
+    type: 'Statement I & II',
+    text: 'During non-cyclic photophosphorylation in thylakoids, the primary electron acceptor from Photosystem II (P680) is:',
+    options: ['Plastoquinone', 'Pheophytin', 'Cytochrome b6f', 'Ferredoxin'],
+    correctOption: 1,
+    explanation: 'Upon light absorption, P680 passes its excited electron first to pheophytin.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '97% Likely in NEET'
+  },
+  {
+    id: 'b3',
+    subject: 'Botany',
+    chapter: 'Sexual Reproduction in Flowering Plants',
+    difficulty: 'Medium',
+    type: 'Conceptual MCQ',
+    text: 'During double fertilization in angiosperms, the fusion of one male gamete with the diploid secondary nucleus forms:',
+    options: ['Zygote (2n)', 'Primary Endosperm Nucleus (3n)', 'Aleurone layer (2n)', 'Embryo (2n)'],
+    correctOption: 1,
+    explanation: 'Triple fusion creates the triploid (3n) Primary Endosperm Nucleus (PEN).',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '98% Likely in NEET'
   },
   {
     id: 'z1',
@@ -66,10 +150,38 @@ export const mockQuestions = [
     text: 'During resting membrane potential in a nerve axon, the ionic gradients are maintained by active transport of ions by the Na+/K+ pump which pumps:',
     options: ['3 Na+ outwards for 2 K+ inwards', '2 Na+ outwards for 3 K+ inwards', '3 Na+ inwards for 2 K+ outwards', '2 Na+ inwards for 3 K+ outwards'],
     correctOption: 0,
-    explanation: 'The Na+/K+ pump moves 3 Na+ out for 2 K+ in.',
+    explanation: 'The Na+/K+ pump moves 3 Na+ out for 2 K+ in consuming one ATP.',
     imageUrl: null,
     isAiPredicted: true,
     probabilityWeight: '95% Likely in NEET'
+  },
+  {
+    id: 'z2',
+    subject: 'Zoology',
+    chapter: 'Body Fluids & Circulation',
+    difficulty: 'Hard',
+    type: 'Matching Type',
+    text: 'In a standard 12-lead Electrocardiogram (ECG) of a healthy adult, the QRS complex represents:',
+    options: ['Depolarisation of Atria', 'Repolarisation of Ventricles', 'Depolarisation of Ventricles', 'Repolarisation of Atria'],
+    correctOption: 2,
+    explanation: 'The QRS complex represents ventricular depolarisation, which initiates ventricular contraction.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '97% Likely in NEET'
+  },
+  {
+    id: 'z3',
+    subject: 'Zoology',
+    chapter: 'Biotechnology: Principles & Processes',
+    difficulty: 'Hard',
+    type: 'Statement I & II',
+    text: 'Which restriction endonuclease enzyme produces blunt ends upon cleavage of double-stranded target DNA?',
+    options: ['EcoRI', 'HindIII', 'SmaI', 'BamHI'],
+    correctOption: 2,
+    explanation: 'SmaI recognizes CCC^GGG and cuts symmetrically producing blunt ends, whereas EcoRI and HindIII produce sticky ends.',
+    imageUrl: null,
+    isAiPredicted: true,
+    probabilityWeight: '96% Likely in NEET'
   }
 ];
 
@@ -87,7 +199,7 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'Dr. R.K. Sharma',
-    questionIds: ['p1', 'p2', 'c1', 'b1', 'z1']
+    questionIds: ['p1', 'p2', 'p3', 'p4', 'c1', 'c2', 'c3', 'b1', 'b2', 'b3', 'z1', 'z2', 'z3']
   },
   {
     id: 'exam-full-02',
@@ -102,7 +214,6 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'NTA National Board (Simulated)',
-    questionIds: ['p1', 'p2', 'c1', 'b1', 'z1']
   },
   {
     id: 'exam-sub-physics',
