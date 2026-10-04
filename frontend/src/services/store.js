@@ -16,6 +16,25 @@ class Store {
       }
     } catch (e) {}
 
+    const sanitizeExam = (e) => {
+      if (!e) return e;
+      const cleanTitle = (e.title || '').replace(/\b2026\b/g, '').replace(/\s{2,}/g, ' ').trim();
+      const cleanCode = (e.code || '').replace(/-2026/g, '').replace(/2026-/g, '').replace(/2026/g, '').trim();
+      return {
+        ...e,
+        title: cleanTitle || e.title,
+        code: cleanCode || e.code
+      };
+    };
+
+    const storedExamsRaw = this.loadFromStorage('customExams', mockExams);
+    const initialExamMap = new Map();
+    mockExams.forEach((e) => initialExamMap.set(e.id, sanitizeExam(e)));
+    (storedExamsRaw || []).forEach((e) => {
+      const cleaned = sanitizeExam(e);
+      initialExamMap.set(cleaned.id, cleaned);
+    });
+
     this.state = {
       theme: this.loadFromStorage('theme', 'light'),
       currentUser: this.loadFromStorage('user', null),
@@ -33,7 +52,7 @@ class Store {
       proctorStrictness: 'Strict AI',
 
       questions: this.loadFromStorage('questions', mockQuestions),
-      exams: this.loadFromStorage('customExams', mockExams),
+      exams: Array.from(initialExamMap.values()),
       colleges: mockColleges,
       leaderboard: mockLeaderboard,
       teams: this.loadFromStorage('teams', mockTeams),
@@ -47,12 +66,23 @@ class Store {
 
   async syncBackendData() {
     try {
+      const sanitizeExam = (e) => {
+        if (!e) return e;
+        const cleanTitle = (e.title || '').replace(/\b2026\b/g, '').replace(/\s{2,}/g, ' ').trim();
+        const cleanCode = (e.code || '').replace(/-2026/g, '').replace(/2026-/g, '').replace(/2026/g, '').trim();
+        return {
+          ...e,
+          title: cleanTitle || e.title,
+          code: cleanCode || e.code
+        };
+      };
+
       const remoteExams = await fetchExamsFromBackend();
       if (remoteExams && remoteExams.length > 0) {
         const customExams = this.loadFromStorage('customExams', []);
-        const merged = [...customExams, ...remoteExams];
+        const merged = [...mockExams, ...customExams, ...remoteExams];
         const uniqueMap = new Map();
-        merged.forEach((e) => uniqueMap.set(e.id, e));
+        merged.forEach((e) => uniqueMap.set(e.id, sanitizeExam(e)));
         this.setState({ exams: Array.from(uniqueMap.values()) });
       }
 

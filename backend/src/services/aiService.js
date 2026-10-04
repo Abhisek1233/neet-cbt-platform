@@ -25,6 +25,40 @@ const REAL_NEET_QUESTION_BANK = {
       options: ['Halved', 'Unchanged', 'Doubled', 'Quadrupled'],
       correctOption: 3,
       explanation: 'Fringe width β = (λ * D) / d. If D becomes 2D and d becomes d/2, β\' = (λ * 2D) / (d/2) = 4 * (λ * D / d) = 4β (Quadrupled).'
+    },
+    {
+      text: 'A parallel plate capacitor is charged and then disconnected from the battery. If a dielectric slab of dielectric constant K is now inserted between the plates, which of the following quantities remains unchanged?',
+      options: ['Electric field between plates', 'Potential difference across plates', 'Charge stored on plates', 'Electrostatic energy stored'],
+      correctOption: 2,
+      explanation: 'Since the capacitor is disconnected from the battery, charge Q is conserved and remains constant.'
+    },
+    {
+      text: 'Assertion (A): The escape velocity from the surface of Earth is independent of the mass of the projectile.\nReason (R): The gravitational potential energy of any object at the Earth\'s surface is directly proportional to its mass.',
+      options: [
+        'Both (A) and (R) are true and (R) is the correct explanation of (A)',
+        'Both (A) and (R) are true but (R) is NOT the correct explanation of (A)',
+        '(A) is true but (R) is false',
+        '(A) is false but (R) is true'
+      ],
+      correctOption: 0,
+      explanation: 'v_e = √(2GM/R) which is independent of projectile mass m because both kinetic energy and gravitational potential energy are proportional to m.'
+    },
+    {
+      text: 'Statement I: In a simple pendulum, the restoring torque is provided by the tangential component of gravity mg sin θ.\nStatement II: The time period of a simple pendulum increases when it is taken inside a deep mine.',
+      options: [
+        'Both Statement I and Statement II are correct',
+        'Both Statement I and Statement II are incorrect',
+        'Statement I is correct but Statement II is incorrect',
+        'Statement I is incorrect but Statement II is correct'
+      ],
+      correctOption: 0,
+      explanation: 'Statement I is true (τ = -mgL sin θ). Statement II is true because effective g decreases inside a mine (g\' = g(1 - d/R)), so T = 2π√(L/g\') increases.'
+    },
+    {
+      text: 'A ray of light is incident at Brewster\'s angle on a glass slab of refractive index μ = √3. The angle of refraction inside the glass medium is:',
+      options: ['60°', '30°', '45°', '90°'],
+      correctOption: 1,
+      explanation: 'tan(i_p) = μ = √3 => i_p = 60°. Since i_p + r = 90° for Brewster reflection, r = 90° - 60° = 30°.'
     }
   ],
   Chemistry: [
@@ -51,6 +85,40 @@ const REAL_NEET_QUESTION_BANK = {
       options: ['Cu > Fe > Al', 'Al > Fe > Cu', 'Fe > Al > Cu', 'Al > Cu > Fe'],
       correctOption: 1,
       explanation: 'More negative standard reduction potential corresponds to higher tendency to undergo oxidation, hence stronger reducing agent. Therefore, Al (-1.66 V) > Fe (-0.44 V) > Cu (+0.34 V).'
+    },
+    {
+      text: 'Assertion (A): Acidic strength of haloacids follows the order: HF < HCl < HBr < HI.\nReason (R): Bond dissociation enthalpy decreases down the group from H-F to H-I due to increasing size of halogen atom.',
+      options: [
+        'Both (A) and (R) are true and (R) is the correct explanation of (A)',
+        'Both (A) and (R) are true but (R) is NOT the correct explanation of (A)',
+        '(A) is true but (R) is false',
+        '(A) is false but (R) is true'
+      ],
+      correctOption: 0,
+      explanation: 'As the halogen size increases from F to I, the H-X bond length increases and H-X bond dissociation enthalpy decreases sharply, making H+ release easiest in HI.'
+    },
+    {
+      text: 'Which of the following molecules has a square planar geometry according to VSEPR theory?',
+      options: ['CH4', 'SF4', 'XeF4', 'NH4+'],
+      correctOption: 2,
+      explanation: 'XeF4 has 4 bond pairs and 2 lone pairs on Xenon (steric number 6, sp³d² hybridization), with lone pairs occupying trans axial positions giving a square planar shape.'
+    },
+    {
+      text: 'Statement I: SN1 reactions of chiral alkyl halides proceed with complete retention of configuration.\nStatement II: SN2 reactions involve a pentacoordinate carbon transition state and result in Walden inversion.',
+      options: [
+        'Both Statement I and Statement II are correct',
+        'Both Statement I and Statement II are incorrect',
+        'Statement I is incorrect but Statement II is correct',
+        'Statement I is correct but Statement II is incorrect'
+      ],
+      correctOption: 2,
+      explanation: 'Statement I is incorrect because SN1 proceeds via a planar carbocation intermediate yielding racemization (with slight excess inversion). Statement II is correct.'
+    },
+    {
+      text: 'The pH of a buffer solution prepared by mixing 50 mL of 0.1 M CH3COOH and 50 mL of 0.1 M CH3COONa (pKa of CH3COOH = 4.74) is:',
+      options: ['4.74', '5.74', '3.74', '7.00'],
+      correctOption: 0,
+      explanation: 'By Henderson-Hasselbalch equation: pH = pKa + log([Salt]/[Acid]) = 4.74 + log(1) = 4.74.'
     }
   ],
   Botany: [
@@ -77,6 +145,40 @@ const REAL_NEET_QUESTION_BANK = {
       options: ['Leptotene and Zygotene', 'Pachytene and Diplotene', 'Diakinesis', 'Metaphase-I'],
       correctOption: 1,
       explanation: 'Crossing over mediated by recombinase occurs during Pachytene, and the dissolution of synaptonemal complex revealing X-shaped chiasmata occurs at Diplotene.'
+    },
+    {
+      text: 'Assertion (A): C4 plants are photosynthetically more efficient than C3 plants at higher temperatures and light intensities.\nReason (R): C4 plants exhibit Kranz anatomy and lack photorespiration due to localized RuBisCO in bundle sheath cells.',
+      options: [
+        'Both (A) and (R) are true and (R) is the correct explanation of (A)',
+        'Both (A) and (R) are true but (R) is NOT the correct explanation of (A)',
+        '(A) is true but (R) is false',
+        '(A) is false but (R) is true'
+      ],
+      correctOption: 0,
+      explanation: 'In C4 plants, PEP carboxylase fixes CO2 initially, and CO2 is concentrated in bundle sheath cells around RuBisCO, completely suppressing wasteful RuBisCO oxygenase activity.'
+    },
+    {
+      text: 'In lac operon of E. coli, the repressor protein synthesized by the i-gene binds specifically to which region to block transcription?',
+      options: ['Promoter site', 'Operator gene', 'Structural gene z', 'Cap-cAMP binding site'],
+      correctOption: 1,
+      explanation: 'The active lac repressor tetramer binds to the operator region (O), preventing RNA polymerase from transcribing the lacZ, lacY, and lacA structural genes.'
+    },
+    {
+      text: 'Statement I: In flowering plants, water absorption is largely driven by transpiration pull through the apoplast pathway in the root cortex.\nStatement II: The Casparian strip in the endodermis is composed of impermeable suberin, forcing water into the symplast pathway.',
+      options: [
+        'Both Statement I and Statement II are correct',
+        'Both Statement I and Statement II are incorrect',
+        'Statement I is correct but Statement II is incorrect',
+        'Statement I is incorrect but Statement II is correct'
+      ],
+      correctOption: 0,
+      explanation: 'Both statements are directly from NCERT Plant Physiology. Suberized Casparian strips block apoplastic flow at the endodermis.'
+    },
+    {
+      text: 'According to Lindeman\'s 10% trophic efficiency law, if 10,000 Joules of net primary productivity is available at the producer level, how much energy will be available to the tertiary consumer?',
+      options: ['1,000 J', '100 J', '10 J', '1 J'],
+      correctOption: 2,
+      explanation: 'Producer (10,000 J) -> Primary Consumer (1,000 J) -> Secondary Consumer (100 J) -> Tertiary Consumer (10 J).'
     }
   ],
   Zoology: [
@@ -103,6 +205,40 @@ const REAL_NEET_QUESTION_BANK = {
       options: ['Progesterone', 'Estrogen (high sustained level)', 'Prolactin', 'Oxytocin'],
       correctOption: 1,
       explanation: 'High sustained levels of 17β-estradiol secreted by mature Graafian follicle exert positive feedback on the anterior pituitary, triggering the acute LH surge around Day 14.'
+    },
+    {
+      text: 'Assertion (A): In human nephrons, the descending limb of loop of Henle is permeable to water but virtually impermeable to electrolytes.\nReason (R): This concentrates the glomerular filtrate as it moves down into the hypertonic renal medulla.',
+      options: [
+        'Both (A) and (R) are true and (R) is the correct explanation of (A)',
+        'Both (A) and (R) are true but (R) is NOT the correct explanation of (A)',
+        '(A) is true but (R) is false',
+        '(A) is false but (R) is true'
+      ],
+      correctOption: 0,
+      explanation: 'The descending thin limb lacks active salt transport but has high water permeability (aquaporins), concentrating tubular fluid up to 1200 mOsm/L at the hairpin loop.'
+    },
+    {
+      text: 'Statement I: Erythroblastosis foetalis occurs when an Rh-negative mother carries an Rh-positive foetus for the second time.\nStatement II: Administration of anti-Rh antibodies (RhoGAM) to the Rh-negative mother immediately after delivery of the first child prevents sensitization.',
+      options: [
+        'Both Statement I and Statement II are correct',
+        'Both Statement I and Statement II are incorrect',
+        'Statement I is correct but Statement II is incorrect',
+        'Statement I is incorrect but Statement II is correct'
+      ],
+      correctOption: 0,
+      explanation: 'Both statements are scientifically accurate and directly from NCERT Human Physiology.'
+    },
+    {
+      text: 'Match List-I (Endocrine Cell) with List-II (Hormone Secreted):\n(A) Alpha cells of Islets of Langerhans - (I) Melatonin\n(B) Beta cells of Islets of Langerhans - (II) Glucagon\n(C) Pineal gland - (III) Insulin\n(D) Corpus luteum - (IV) Progesterone',
+      options: ['A-II, B-III, C-I, D-IV', 'A-III, B-II, C-I, D-IV', 'A-II, B-I, C-III, D-IV', 'A-IV, B-III, C-I, D-II'],
+      correctOption: 0,
+      explanation: 'Alpha cells secrete Glucagon, Beta cells secrete Insulin, Pineal gland secretes Melatonin, Corpus luteum secretes Progesterone.'
+    },
+    {
+      text: 'Which of the following sets of animals belong to the phylum Chondrichthyes and possess a cartilaginous endoskeleton without an air bladder?',
+      options: ['Scoliodon and Pristis', 'Exocoetus and Betta', 'Labeo and Catla', 'Hippocampus and Clarias'],
+      correctOption: 0,
+      explanation: 'Scoliodon (Dogfish) and Pristis (Sawfish) are marine cartilaginous fishes (Chondrichthyes) that lack an air bladder and must swim constantly to avoid sinking.'
     }
   ]
 };
