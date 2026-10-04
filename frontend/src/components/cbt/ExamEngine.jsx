@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Bookmark, RotateCcw, ArrowRight, ArrowLeft, Send, User, Menu, X, CheckCircle2 } from 'lucide-react';
+import { Clock, Bookmark, RotateCcw, ArrowRight, ArrowLeft, Send, User, Menu, X, CheckCircle2, ZoomIn, ZoomOut, Type, Layers } from 'lucide-react';
 import { store } from '../../services/store';
+import MathText from '../ui/MathText';
 
 export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
   const [timeRemainingSec, setTimeRemainingSec] = useState((exam.durationMin || 200) * 60);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showMobilePalette, setShowMobilePalette] = useState(false);
+  const [fontSizeMode, setFontSizeMode] = useState('normal'); // 'normal' | 'large' | 'xl'
+  const [paletteFilter, setPaletteFilter] = useState('all'); // 'all' | 'A' | 'B'
 
   const questions = store.getExamQuestions();
   const currentIndex = storeState.currentQuestionIndex || 0;
@@ -18,6 +21,9 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
   const selectedOption = response.selectedOption;
 
   const isSectionB = (currentIndex % 50) >= 35;
+  const questionFontClass = fontSizeMode === 'xl' ? 'text-base sm:text-lg' : fontSizeMode === 'large' ? 'text-sm sm:text-base' : 'text-xs sm:text-sm';
+  const optionFontClass = fontSizeMode === 'xl' ? 'text-sm sm:text-base' : fontSizeMode === 'large' ? 'text-xs sm:text-sm' : 'text-xs sm:text-sm';
+
 
   // Countdown Timer
   useEffect(() => {
@@ -242,25 +248,60 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
               })}
             </div>
 
-            {/* Question Bar Header */}
+            {/* Question Bar Header with Official NTA Controls */}
             <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded bg-slate-900 text-amber-400 font-mono text-xs font-extrabold">
                   Q. {currentIndex + 1} of {questions.length}
                 </span>
                 <span className={`px-2 py-0.5 rounded text-[11px] font-extrabold ${
                   isSectionB ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-blue-100 text-blue-900 border border-blue-300'
                 }`}>
-                  {isSectionB ? 'Section B (Attempt Any 10)' : 'Section A (Mandatory 35)'}
+                  {isSectionB ? 'Section B (Attempt Any 10)' : 'Section A (Mandatory 1-35)'}
+                </span>
+                <span className="text-[11px] font-bold font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                  +4 / -1
                 </span>
               </div>
-              <span className="text-[11px] font-bold font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                +4 Marks / -1 Mark
-              </span>
+
+              {/* NTA Font Size Zoom Tool (A- | A | A+) */}
+              <div className="flex items-center gap-1 bg-slate-100 px-1.5 py-0.5 rounded-lg border border-slate-200 text-xs">
+                <span className="text-[10px] text-slate-500 font-bold hidden sm:inline">Zoom:</span>
+                <button
+                  type="button"
+                  onClick={() => setFontSizeMode('normal')}
+                  className={`px-1.5 py-0.5 rounded font-bold text-[11px] transition-all cursor-pointer ${
+                    fontSizeMode === 'normal' ? 'bg-white text-blue-700 shadow-xs border border-slate-300' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  title="Standard Font Size"
+                >
+                  A-
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFontSizeMode('large')}
+                  className={`px-1.5 py-0.5 rounded font-bold text-xs transition-all cursor-pointer ${
+                    fontSizeMode === 'large' ? 'bg-white text-blue-700 shadow-xs border border-slate-300' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  title="Large Font Size"
+                >
+                  A
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFontSizeMode('xl')}
+                  className={`px-1.5 py-0.5 rounded font-extrabold text-sm transition-all cursor-pointer ${
+                    fontSizeMode === 'xl' ? 'bg-white text-blue-700 shadow-xs border border-slate-300' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  title="Extra Large Font Size"
+                >
+                  A+
+                </button>
+              </div>
             </div>
 
-            {/* Question Statement Card */}
-            <div className="cbt-question-card p-4 sm:p-5 rounded-xl border border-slate-300 bg-white shadow-sm space-y-2">
+            {/* Question Statement Card with KaTeX Math Rendering */}
+            <div className="cbt-question-card p-4 sm:p-5 rounded-xl border border-slate-300 bg-white shadow-sm space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {currentQuestion.subject} • {currentQuestion.chapter || 'NCERT Core'}
@@ -269,12 +310,12 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                   {currentQuestion.difficulty || 'Medium'}
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-slate-900 font-semibold leading-relaxed font-sans">
-                {currentQuestion.text}
-              </p>
+              <div className={`text-slate-900 font-semibold leading-relaxed font-sans ${questionFontClass}`}>
+                <MathText text={currentQuestion.text} />
+              </div>
             </div>
 
-            {/* 4 Options Radio Cards (Touch-Optimized) */}
+            {/* 4 Options Radio Cards with KaTeX Math Rendering */}
             <div className="space-y-2.5 pb-4">
               {currentQuestion.options && currentQuestion.options.map((optText, idx) => {
                 const isSelected = selectedOption === idx;
@@ -294,11 +335,14 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                     }`}>
                       {optLetter}
                     </div>
-                    <span className="text-xs sm:text-sm font-medium leading-relaxed pt-0.5">{optText}</span>
+                    <div className={`font-medium leading-relaxed pt-0.5 ${optionFontClass}`}>
+                      <MathText text={optText} />
+                    </div>
                   </div>
                 );
               })}
             </div>
+
 
           </div>
 
@@ -372,35 +416,75 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
 
               <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-answered shadow-sm">{statusCounts.answered}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-answered shadow-xs">{statusCounts.answered}</span>
                   <span className="text-slate-700 font-medium">Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-answered shadow-sm">{statusCounts.notAnswered}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-answered shadow-xs">{statusCounts.notAnswered}</span>
                   <span className="text-slate-700 font-medium">Not Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-visited shadow-sm">{statusCounts.notVisited}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-not-visited shadow-xs">{statusCounts.notVisited}</span>
                   <span className="text-slate-700 font-medium">Not Visited</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-marked shadow-sm">{statusCounts.marked}</span>
+                  <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-marked shadow-xs">{statusCounts.marked}</span>
                   <span className="text-slate-700 font-medium">Marked Review</span>
                 </div>
+                {statusCounts.markedAnswered > 0 && (
+                  <div className="flex items-center gap-2 col-span-2">
+                    <span className="w-5 h-5 flex items-center justify-center font-bold text-[10px] q-btn-marked-answered shadow-xs">{statusCounts.markedAnswered}</span>
+                    <span className="text-slate-700 font-medium">Ans & Marked for Review</span>
+                  </div>
+                )}
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
                 <span className="text-xs font-bold text-slate-800">Question Palette:</span>
-                <span className="text-[11px] font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                  {questions.length} Questions
-                </span>
+
+                {/* Official NTA Section A (1-35) & Section B (36-50) Palette Filters */}
+                {questions.length >= 35 && (
+                  <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('all')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        paletteFilter === 'all' ? 'bg-slate-900 text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      All ({questions.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('A')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        paletteFilter === 'A' ? 'bg-blue-700 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Sec A (1-35)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('B')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        paletteFilter === 'B' ? 'bg-purple-700 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Sec B (36-50)
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Responsive Auto-Fill Grid */}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-200 overflow-y-auto max-h-[calc(100vh-360px)] min-h-[140px]">
+              {/* Responsive Auto-Fill Grid with Section Filter */}
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-200 overflow-y-auto max-h-[calc(100vh-370px)] min-h-[140px]">
                 {questions.map((q, idx) => {
+                  const secIdx = idx % 50;
+                  if (paletteFilter === 'A' && secIdx >= 35) return null;
+                  if (paletteFilter === 'B' && secIdx < 35) return null;
+
                   const statusClass = getPaletteStatusClass(q);
                   const isCurrent = idx === currentIndex;
                   return (
@@ -408,10 +492,10 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                       key={q.id}
                       type="button"
                       onClick={() => store.setCurrentQuestionIndex(idx)}
-                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm relative ${statusClass} ${
+                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs relative ${statusClass} ${
                         isCurrent ? 'ring-2 ring-blue-600 ring-offset-2 scale-105 font-extrabold z-10' : ''
                       }`}
-                      title={`Question ${idx + 1} (${q.subject})`}
+                      title={`Question ${idx + 1} (${q.subject} - ${secIdx < 35 ? 'Section A' : 'Section B'})`}
                     >
                       {idx + 1}
                     </button>
@@ -420,6 +504,7 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
               </div>
             </div>
           </div>
+
 
           <div className="shrink-0 p-4 border-t border-slate-300 bg-white">
             <button
@@ -468,12 +553,46 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
 
               <div className="flex items-center justify-between pt-1">
                 <span className="text-xs font-bold text-slate-800">Select Question:</span>
-                <span className="text-[11px] font-mono font-bold text-slate-600">{questions.length} Questions</span>
+                {questions.length >= 35 && (
+                  <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('all')}
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        paletteFilter === 'all' ? 'bg-slate-900 text-amber-300' : 'text-slate-600'
+                      }`}
+                    >
+                      All
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('A')}
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        paletteFilter === 'A' ? 'bg-blue-700 text-white' : 'text-slate-600'
+                      }`}
+                    >
+                      Sec A
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaletteFilter('B')}
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        paletteFilter === 'B' ? 'bg-purple-700 text-white' : 'text-slate-600'
+                      }`}
+                    >
+                      Sec B
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Responsive Auto-Fill Grid in Mobile Drawer */}
               <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5 p-2 bg-slate-50 rounded-xl border border-slate-200 max-h-[50vh] overflow-y-auto">
                 {questions.map((q, idx) => {
+                  const secIdx = idx % 50;
+                  if (paletteFilter === 'A' && secIdx >= 35) return null;
+                  if (paletteFilter === 'B' && secIdx < 35) return null;
+
                   const statusClass = getPaletteStatusClass(q);
                   const isCurrent = idx === currentIndex;
                   return (
@@ -484,7 +603,7 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                         store.setCurrentQuestionIndex(idx);
                         setShowMobilePalette(false);
                       }}
-                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm relative ${statusClass} ${
+                      className={`w-10 h-10 aspect-square mx-auto font-mono font-bold text-xs flex items-center justify-center rounded-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs relative ${statusClass} ${
                         isCurrent ? 'ring-2 ring-blue-600 ring-offset-2 scale-105 font-extrabold z-10' : ''
                       }`}
                     >
@@ -493,6 +612,7 @@ export default function ExamEngine({ exam, currentUser, storeState, onExit }) {
                   );
                 })}
               </div>
+
             </div>
 
             <div className="pt-3 border-t border-slate-200">

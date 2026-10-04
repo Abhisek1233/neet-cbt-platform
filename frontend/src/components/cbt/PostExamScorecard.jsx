@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Award, CheckCircle2, XCircle, ShieldCheck, BookOpen, Edit3, ArrowLeft } from 'lucide-react';
 import { store } from '../../services/store';
+import MathText from '../ui/MathText';
+
 
 export default function PostExamScorecard({ attempt, storeState, onExit }) {
   const [activeTab, setActiveTab] = useState('scorecard');
@@ -145,7 +147,9 @@ export default function PostExamScorecard({ attempt, storeState, onExit }) {
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-100 font-medium mb-3 leading-relaxed">{q.text}</p>
+                <div className="text-xs sm:text-sm text-slate-100 font-medium mb-3 leading-relaxed">
+                  <MathText text={q.text} />
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                   {q.options.map((optText, optIdx) => {
@@ -162,7 +166,10 @@ export default function PostExamScorecard({ attempt, storeState, onExit }) {
                             : 'bg-slate-900 border-slate-800 text-slate-400'
                         }`}
                       >
-                        <span className="leading-snug">{String.fromCharCode(65 + optIdx)}. {optText}</span>
+                        <span className="leading-snug flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold">{String.fromCharCode(65 + optIdx)}.</span>
+                          <MathText text={optText} />
+                        </span>
                         {isRightOpt && <span className="font-bold text-emerald-400 shrink-0 text-[11px]">✓ Correct</span>}
                         {isUserOpt && !isRightOpt && <span className="font-bold text-red-400 shrink-0 text-[11px]">✗ Your Pick</span>}
                       </div>
@@ -171,11 +178,14 @@ export default function PostExamScorecard({ attempt, storeState, onExit }) {
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 mb-3">
-                  <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                     <BookOpen className="w-3.5 h-3.5" /> Official Solution & Explanation:
                   </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">{q.explanation}</p>
+                  <div className="text-xs text-slate-300 leading-relaxed font-sans">
+                    <MathText text={q.explanation} />
+                  </div>
                 </div>
+
 
                 <div className="pt-2 border-t border-slate-800/80">
                   <div className="flex items-center gap-2 mb-1.5">
