@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, X, Cpu, Layers, BookOpen, CheckCircle2, ChevronRight, Zap, Target, Award } from 'lucide-react';
-import { generateBatchExamQuestions } from '../../services/api';
+import { fetchLiveAiBatchQuestions } from '../../services/api';
 import { store } from '../../services/store';
 import { showToast } from '../ui/Toast';
 
@@ -157,12 +157,12 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
         defaultTitle = testTitle.trim() || `NEET AI High-Yield Predicted Paper: ${aiScope === 'All' ? 'All Subjects' : aiScope} (${questionCount}Q)`;
       }
 
-      setGenerationStep('Connecting to Gemini AI Engine...');
-      await new Promise(r => setTimeout(r, 300));
+      setGenerationStep('Connecting to Google Gemini 3.8 Flash AI Engine...');
+      await new Promise(r => setTimeout(r, 200));
 
       setGenerationStep(`Formulating authentic NCERT questions across ${targetSubjects.join(', ')}...`);
 
-      const generatedQuestions = generateBatchExamQuestions({
+      const generatedQuestions = await fetchLiveAiBatchQuestions({
         category: activeTab,
         subjects: targetSubjects,
         count: questionCount,
@@ -170,6 +170,7 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
         questionType: questionType,
         chapter: targetChapter
       });
+
 
       // Register questions in the local store
       generatedQuestions.forEach((q) => {
@@ -224,7 +225,15 @@ export default function GenerateAiTestModal({ isOpen, onClose, category = 'Full-
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-display font-extrabold">Generate Custom AI Test</h3>
-              <p className="text-[11px] text-slate-500">Authentic NTA examination format with real NCERT questions</p>
+              <p className="text-[11px] text-slate-500 flex items-center gap-1.5 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <Sparkles className="w-3 h-3 text-emerald-500 animate-pulse" />
+                  Powered by Gemini 3.8
+                </span>
+                <span>•</span>
+                <span>Authentic NTA Format & NCERT Blueprint</span>
+              </p>
+
             </div>
           </div>
           <button

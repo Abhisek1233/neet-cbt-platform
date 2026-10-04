@@ -9,7 +9,7 @@ exports.getCounselingAdvice = async (req, res, next) => {
 
     if (genAI) {
       try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
         const prompt = `Provide concise, expert medical admission counseling advice for a candidate who scored ${score}/720 with All India Rank AIR #${rank} in Category "${category}" under Quota "${quota}". Mention top tier-1 Government Medical Colleges (like MAMC, VMMC, KGMU, JIPMER) and MCC Round 1/Round 2 seat chances.`;
         const result = await model.generateContent(prompt);
         adviceText = result.response.text().trim();

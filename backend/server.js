@@ -98,8 +98,10 @@ app.post('/api/feedback', async (req, res) => {
   }
 });
 
-// AI Direct Gemini Question Route (Used by Frontend for /api/ai/generate-question)
+// AI Direct Gemini Question Routes (Used by Frontend)
 app.post('/api/ai/generate-question', questionController.generateAiQuestion);
+app.post('/api/ai/generate-batch', questionController.generateAiQuestionsBatch);
+
 
 // Mount Complete API Routes
 app.use('/api/auth', authRoutes);

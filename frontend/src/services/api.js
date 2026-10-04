@@ -460,7 +460,37 @@ export async function generateAiQuestion(subject, chapter, type) {
   }
 }
 
+export async function fetchLiveAiBatchQuestions({ category = 'Full-Length', subjects = ['Physics', 'Chemistry', 'Botany', 'Zoology'], count = 20, difficulty = 'Real Mix', questionType = 'All Types', chapter = '' }) {
+  // For interactive drills and custom AI tests (up to 20 questions), query live Gemini Engine
+  if (count <= 20) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 9000);
+      const res = await fetch(`${API_BASE_URL}/ai/generate-batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, subjects, count, difficulty, type: questionType, chapter }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        const json = await res.json();
+        const questions = json.data || json.questions || json;
+        if (Array.isArray(questions) && questions.length === count) {
+          return questions;
+        }
+      }
+    } catch (e) {
+      console.warn('Live AI batch generation fallback to high-yield NCERT engine:', e.message);
+    }
+  }
+
+  // Instant High-Yield NCERT Engine (used for 200Q full mocks or offline resilience)
+  return generateBatchExamQuestions({ category, subjects, count, difficulty, questionType, chapter });
+}
+
 export function generateBatchExamQuestions({ category = 'Full-Length', subjects = ['Physics', 'Chemistry', 'Botany', 'Zoology'], count = 20, difficulty = 'Real Mix', questionType = 'All Types', chapter = '' }) {
+
   const allSubjects = (category === 'Full-Length' || category === 'All')
     ? ['Physics', 'Chemistry', 'Botany', 'Zoology']
     : subjects;

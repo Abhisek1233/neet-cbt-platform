@@ -58,3 +58,22 @@ exports.generateAiQuestion = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.generateAiQuestionsBatch = async (req, res, next) => {
+  try {
+    const { category, subjects, count = 10, difficulty, type, chapter } = req.body;
+    const questions = await aiService.generateNeetQuestionsBatch({
+      category,
+      subjects,
+      count: parseInt(count, 10) || 10,
+      difficulty,
+      type,
+      chapter
+    });
+
+    return responseHandler.success(res, questions, 'Batch AI Questions generated successfully.', 200);
+  } catch (err) {
+    next(err);
+  }
+};
+
