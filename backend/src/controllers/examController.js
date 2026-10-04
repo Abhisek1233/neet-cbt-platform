@@ -13,7 +13,7 @@ const memoryExams = [
     sections: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
     proctoringLevel: 'Strict AI',
     createdBy: 'Dr. R.K. Sharma',
-    questionIds: ['p1', 'p2', 'p3', 'p4', 'c1', 'c2', 'c3', 'b1', 'b2', 'b3', 'z1', 'z2', 'z3']
+    questionIds: []
   },
   {
     id: 'exam-full-02',
@@ -27,7 +27,7 @@ const memoryExams = [
     sections: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
     proctoringLevel: 'Strict AI',
     createdBy: 'NTA National Board (Simulated)',
-    questionIds: ['p1', 'p2', 'c1', 'b1', 'z1']
+    questionIds: []
   },
   {
     id: 'exam-sub-physics',
@@ -41,7 +41,7 @@ const memoryExams = [
     sections: ['Physics'],
     proctoringLevel: 'Strict AI',
     createdBy: 'Prof. V. K. Mehta',
-    questionIds: ['p1', 'p2', 'p3', 'p4']
+    questionIds: []
   },
   {
     id: 'exam-sub-chemistry',
@@ -55,7 +55,7 @@ const memoryExams = [
     sections: ['Chemistry'],
     proctoringLevel: 'Moderate',
     createdBy: 'Dr. S. K. Roy',
-    questionIds: ['c1', 'c2', 'c3']
+    questionIds: []
   },
   {
     id: 'exam-sub-botany',
@@ -69,7 +69,7 @@ const memoryExams = [
     sections: ['Botany'],
     proctoringLevel: 'Basic',
     createdBy: 'Dr. Ananya Verma',
-    questionIds: ['b1', 'b2', 'b3']
+    questionIds: []
   },
   {
     id: 'exam-sub-zoology',
@@ -83,7 +83,7 @@ const memoryExams = [
     sections: ['Zoology'],
     proctoringLevel: 'Strict AI',
     createdBy: 'Dr. R.K. Sharma',
-    questionIds: ['z1', 'z2', 'z3']
+    questionIds: []
   },
   {
     id: 'exam-topic-optics',
@@ -97,7 +97,7 @@ const memoryExams = [
     sections: ['Physics'],
     proctoringLevel: 'Standard',
     createdBy: 'AI Speed Test Engine',
-    questionIds: ['p2', 'p4']
+    questionIds: []
   },
   {
     id: 'exam-topic-genetics',
@@ -111,7 +111,7 @@ const memoryExams = [
     sections: ['Botany'],
     proctoringLevel: 'Standard',
     createdBy: 'Botany Department',
-    questionIds: ['b1', 'b3']
+    questionIds: []
   },
   {
     id: 'exam-ai-predicted-01',
@@ -125,7 +125,7 @@ const memoryExams = [
     sections: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
     proctoringLevel: 'Strict AI',
     createdBy: 'Google Gemini AI Model',
-    questionIds: ['p1', 'p2', 'p3', 'p4', 'c1', 'c2', 'c3', 'b1', 'b2', 'b3', 'z1', 'z2', 'z3']
+    questionIds: []
   }
 ];
 

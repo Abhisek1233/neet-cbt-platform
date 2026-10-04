@@ -1,11 +1,11 @@
 import { mockExams, mockQuestions, mockColleges, mockLeaderboard, mockTeams, mockDoubts } from '../data/mockData';
-import { submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend, deleteQuestionFromBackend, clearAllQuestionsInBackend } from './api';
+import { generateBatchExamQuestions, submitAttemptToBackend, fetchExamsFromBackend, fetchQuestionsFromBackend, generateFullAiExamQuestions, createExamInBackend, saveQuestionToBackend, deleteQuestionFromBackend, clearAllQuestionsInBackend } from './api';
 
 class Store {
   constructor() {
     this.listeners = new Set();
 
-    // Clear stale pre-loaded questions from local storage on fresh start if legacy format
+    // Clear stale pre-loaded questions & stale customExams from local storage
     try {
       const storedRaw = localStorage.getItem('neet_cbt_questions');
       if (storedRaw) {
@@ -14,11 +14,23 @@ class Store {
           localStorage.removeItem('neet_cbt_questions');
         }
       }
+
+      // Purge any built-in exam cache that had stale 2026 or partial question counts
+      const storedCustom = localStorage.getItem('neet_cbt_customExams');
+      if (storedCustom) {
+        const parsed = JSON.parse(storedCustom);
+        if (Array.isArray(parsed)) {
+          const onlyUserCreated = parsed.filter(
+            (e) => e && e.id && (e.id.startsWith('exam_custom_') || e.id.startsWith('exam_ai_'))
+          );
+          localStorage.setItem('neet_cbt_customExams', JSON.stringify(onlyUserCreated));
+        }
+      }
     } catch (e) {}
 
     const sanitizeExam = (e) => {
       if (!e) return e;
-      const cleanTitle = (e.title || '').replace(/\b2026\b/g, '').replace(/\s{2,}/g, ' ').trim();
+      const cleanTitle = (e.title || '').replace(/\b2026\b/g, '').replace(/2026/g, '').replace(/\s{2,}/g, ' ').trim();
       const cleanCode = (e.code || '').replace(/-2026/g, '').replace(/2026-/g, '').replace(/2026/g, '').trim();
       return {
         ...e,
@@ -27,12 +39,14 @@ class Store {
       };
     };
 
-    const storedExamsRaw = this.loadFromStorage('customExams', mockExams);
+    const storedCustomOnly = this.loadFromStorage('customExams', []);
     const initialExamMap = new Map();
     mockExams.forEach((e) => initialExamMap.set(e.id, sanitizeExam(e)));
-    (storedExamsRaw || []).forEach((e) => {
-      const cleaned = sanitizeExam(e);
-      initialExamMap.set(cleaned.id, cleaned);
+    (storedCustomOnly || []).forEach((e) => {
+      if (e && e.id && (e.id.startsWith('exam_custom_') || e.id.startsWith('exam_ai_'))) {
+        const cleaned = sanitizeExam(e);
+        initialExamMap.set(cleaned.id, cleaned);
+      }
     });
 
     this.state = {
@@ -237,41 +251,48 @@ class Store {
   }
 
   async startPreExamCheck(exam) {
-    let aiGeneratedQuestions = [];
-    try {
-      if (!exam.questionIds || exam.questionIds.length === 0) {
-        aiGeneratedQuestions = await generateFullAiExamQuestions(exam);
-      }
-    } catch (e) {
-      console.warn('AI Question Generation error:', e);
-    }
+    const targetCount = exam.questionCount || 20;
 
     const allKnownMap = new Map();
-    [...aiGeneratedQuestions, ...this.state.questions, ...mockQuestions].forEach((q) => {
+    [...this.state.questions, ...mockQuestions].forEach((q) => {
       if (q && q.id) allKnownMap.set(q.id, q);
     });
 
-    const updatedQuestions = Array.from(allKnownMap.values());
-    const newQuestionIds = aiGeneratedQuestions.map((q) => q.id);
+    let currentQuestions = (exam.questionIds || [])
+      .map((id) => allKnownMap.get(id))
+      .filter(Boolean);
+
+    // If existing questions don't match the exact targetCount (e.g. 13 vs 200, or empty vs 50):
+    if (currentQuestions.length !== targetCount) {
+      const generated = generateBatchExamQuestions({
+        category: exam.category || 'Full-Length',
+        subjects: exam.sections && exam.sections.length > 0 ? exam.sections : ['Physics', 'Chemistry', 'Botany', 'Zoology'],
+        count: targetCount,
+        difficulty: 'Real Mix',
+        questionType: 'All Types'
+      });
+
+      generated.forEach((q) => allKnownMap.set(q.id, q));
+      currentQuestions = generated;
+    }
 
     const updatedExam = {
       ...exam,
-      questionIds: newQuestionIds.length > 0
-        ? [...newQuestionIds, ...(exam.questionIds || [])]
-        : (exam.questionIds && exam.questionIds.length > 0 ? exam.questionIds : ['p1', 'p2', 'c1', 'b1', 'z1'])
+      questionCount: targetCount,
+      questionIds: currentQuestions.map((q) => q.id)
     };
 
-    const firstQId = updatedExam.questionIds[0] || 'p1';
+    const firstQId = updatedExam.questionIds[0] || 'q1';
 
     this.setState({
       activeExam: updatedExam,
-      questions: updatedQuestions,
+      questions: Array.from(allKnownMap.values()),
       activeExamPhase: 'pre-check',
       examResponses: {},
       examAnswersVisited: { [firstQId]: true },
       examTimeRemainingSec: (exam.durationMin || 200) * 60,
       currentQuestionIndex: 0,
-      activeSection: exam.sections?.[0] || 'Physics',
+      activeSection: updatedExam.sections?.[0] || 'Physics',
       proctorLogs: []
     });
   }
@@ -323,7 +344,9 @@ class Store {
 
   setActiveSection(section) {
     const examQuestions = this.getExamQuestions();
-    const firstInSection = examQuestions.findIndex((q) => q.subject === section);
+    const firstInSection = examQuestions.findIndex(
+      (q) => q.subject && q.subject.toLowerCase() === section.toLowerCase()
+    );
     if (firstInSection !== -1) {
       this.setCurrentQuestionIndex(firstInSection);
     }
@@ -332,19 +355,31 @@ class Store {
   getExamQuestions() {
     if (!this.state.activeExam) return mockQuestions;
 
+    const exam = this.state.activeExam;
+    const targetCount = exam.questionCount || 20;
+
     const allKnownMap = new Map();
     [...this.state.questions, ...mockQuestions].forEach((q) => {
       if (q && q.id) allKnownMap.set(q.id, q);
     });
 
-    const ids = (this.state.activeExam.questionIds && this.state.activeExam.questionIds.length > 0)
-      ? this.state.activeExam.questionIds
-      : ['p1', 'p2', 'c1', 'b1', 'z1'];
+    let foundQuestions = (exam.questionIds || [])
+      .map((id) => allKnownMap.get(id))
+      .filter(Boolean);
 
-    let foundQuestions = ids.map((id) => allKnownMap.get(id)).filter(Boolean);
+    // Guarantee that foundQuestions matches targetCount exactly
+    if (foundQuestions.length !== targetCount) {
+      foundQuestions = generateBatchExamQuestions({
+        category: exam.category || 'Full-Length',
+        subjects: exam.sections && exam.sections.length > 0 ? exam.sections : ['Physics', 'Chemistry', 'Botany', 'Zoology'],
+        count: targetCount,
+        difficulty: 'Real Mix',
+        questionType: 'All Types'
+      });
 
-    if (foundQuestions.length === 0) {
-      foundQuestions = mockQuestions;
+      foundQuestions.forEach((q) => allKnownMap.set(q.id, q));
+      this.state.questions = Array.from(allKnownMap.values());
+      exam.questionIds = foundQuestions.map((q) => q.id);
     }
 
     return foundQuestions;

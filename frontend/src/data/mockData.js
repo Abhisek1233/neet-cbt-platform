@@ -199,7 +199,7 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'Dr. R.K. Sharma',
-    questionIds: ['p1', 'p2', 'p3', 'p4', 'c1', 'c2', 'c3', 'b1', 'b2', 'b3', 'z1', 'z2', 'z3']
+    questionIds: []
   },
   {
     id: 'exam-full-02',
@@ -214,6 +214,7 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'NTA National Board (Simulated)',
+    questionIds: []
   },
   {
     id: 'exam-sub-physics',
@@ -228,7 +229,7 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'Prof. V. K. Mehta',
-    questionIds: ['p1', 'p2']
+    questionIds: []
   },
   {
     id: 'exam-sub-chemistry',
@@ -243,7 +244,7 @@ export const mockExams = [
     proctoringLevel: 'Moderate',
     visibility: 'Public',
     createdBy: 'Dr. S. K. Roy',
-    questionIds: ['c1']
+    questionIds: []
   },
   {
     id: 'exam-sub-botany',
@@ -258,7 +259,7 @@ export const mockExams = [
     proctoringLevel: 'Basic',
     visibility: 'Public',
     createdBy: 'Dr. Ananya Verma',
-    questionIds: ['b1']
+    questionIds: []
   },
   {
     id: 'exam-sub-zoology',
@@ -271,9 +272,8 @@ export const mockExams = [
     markingScheme: '+4 / -1',
     sections: ['Zoology'],
     proctoringLevel: 'Strict AI',
-    visibility: 'Public',
     createdBy: 'Dr. R.K. Sharma',
-    questionIds: ['z1']
+    questionIds: []
   },
   {
     id: 'exam-topic-optics',
@@ -288,7 +288,7 @@ export const mockExams = [
     proctoringLevel: 'Standard',
     visibility: 'Public',
     createdBy: 'AI Speed Test Engine',
-    questionIds: ['p2']
+    questionIds: []
   },
   {
     id: 'exam-topic-genetics',
@@ -303,7 +303,7 @@ export const mockExams = [
     proctoringLevel: 'Standard',
     visibility: 'Public',
     createdBy: 'Botany Department',
-    questionIds: ['b1']
+    questionIds: []
   },
   {
     id: 'exam-ai-predicted-01',
@@ -318,7 +318,7 @@ export const mockExams = [
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
     createdBy: 'Deep Learning NEET Model v4',
-    questionIds: ['p1', 'p2', 'c1', 'b1', 'z1']
+    questionIds: []
   },
   {
     id: 'exam-ai-predicted-02',
@@ -332,8 +332,8 @@ export const mockExams = [
     sections: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
     proctoringLevel: 'Strict AI',
     visibility: 'Public',
-    createdBy: 'AI Prediction Algorithm',
-    questionIds: ['p1', 'p2', 'c1', 'b1', 'z1']
+    createdBy: 'Deep Learning NEET Model v4',
+    questionIds: []
   }
 ];
 
